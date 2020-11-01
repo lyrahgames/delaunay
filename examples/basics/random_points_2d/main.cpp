@@ -61,7 +61,7 @@ int main() {
   sf::RenderWindow window(sf::VideoMode(width, height),
                           "Delaunay Triangulation Basic Example");
   window.setVerticalSyncEnabled(true);
-  bool update = true;
+  int update = 2;
 
   // Define drawing routines.
   const auto draw_triangle = [&](const simplex& t) {
@@ -100,7 +100,7 @@ int main() {
           width = event.size.width;
           height = event.size.height;
           window.setView(sf::View(sf::FloatRect(0, 0, width, height)));
-          update = true;
+          update = 2;
           break;
 
         case sf::Event::KeyPressed:
@@ -111,7 +111,7 @@ int main() {
 
             case sf::Keyboard::Space:
               generate_points_and_triangulate(1000);
-              update = true;
+              update = 2;
               break;
 
             default:
@@ -131,7 +131,7 @@ int main() {
       // Render elements and points.
       for (const auto& e : elements) draw_triangle(e);
       for (const auto& p : points) draw_point(p);
-      update = false;
+      --update;
     }
 
     window.display();
