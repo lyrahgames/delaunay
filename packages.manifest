@@ -2,3 +2,5 @@
 location: delaunay/
 :
 location: tests/
+:
+location: examples/basics/

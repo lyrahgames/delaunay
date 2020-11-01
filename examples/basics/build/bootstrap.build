@@ -1,0 +1,7 @@
+project = lyrahgames-delaunay-examples-basics
+
+using version
+using config
+using test
+using install
+using dist

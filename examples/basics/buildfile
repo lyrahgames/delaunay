@@ -1,0 +1,3 @@
+import libs = lyrahgames-delaunay%lib{lyrahgames-delaunay}
+
+./: {*/ -build/} manifest

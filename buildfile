@@ -1,2 +1,2 @@
 import pkgs = delaunay/ tests/
-./: $pkgs
+./: $pkgs examples/

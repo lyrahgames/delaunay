@@ -1,0 +1,2 @@
+import libs += sfml-graphics%lib{sfml-graphics}
+exe{random_points_2d}: {hxx cxx}{**} $libs
