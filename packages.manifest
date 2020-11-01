@@ -3,4 +3,6 @@ location: delaunay/
 :
 location: tests/
 :
+location: benchmarks/
+:
 location: examples/basics/

@@ -1,2 +1,2 @@
-import pkgs = delaunay/ tests/
+import pkgs = delaunay/ tests/ benchmarks/
 ./: $pkgs examples/

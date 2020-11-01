@@ -1,0 +1,2 @@
+import libs += perfevent%lib{perfevent}
+exe{benchmark}: {hxx cxx}{**} $libs
