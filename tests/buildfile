@@ -1,0 +1,7 @@
+./: manifest doc{*.md} legal{COPYING}
+
+import libs = doctest%lib{doctest}
+./: exe{tests}: {hxx cxx}{**} $libs
+{
+  test = true
+}

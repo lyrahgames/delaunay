@@ -1,0 +1,11 @@
+: 1
+name: lyrahgames-delaunay
+version: 0.1.0-a.0.z
+project: lyrahgames
+summary: lyrahgames delaunay
+license: GPL-3.0-or-later ; GNU General Public License v3.0 or later
+
+depends: * build2 >= 0.13.0
+depends: * bpkg >= 0.13.0
+
+tests: lyrahgames-delaunay-tests

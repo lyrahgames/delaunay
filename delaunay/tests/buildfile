@@ -1,0 +1,2 @@
+import libs = lyrahgames-delaunay%lib{lyrahgames-delaunay}
+exe{tests}: {hxx cxx}{**} $libs

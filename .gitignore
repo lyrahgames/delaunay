@@ -1,0 +1,16 @@
+*
+!*/
+
+!*.hpp
+!*.cpp
+
+!buildfile
+!bootstrap.build
+!root.build
+!export.build
+!*manifest
+
+!COPYING
+!*.md
+
+!.gitignore
