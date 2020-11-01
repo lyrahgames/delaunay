@@ -113,7 +113,13 @@ int main() {
               generate_points_and_triangulate(1000);
               update = true;
               break;
+
+            default:
+              break;
           }
+          break;
+
+        default:
           break;
       }
     }
