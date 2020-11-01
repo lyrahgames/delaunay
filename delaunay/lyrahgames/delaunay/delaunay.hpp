@@ -206,6 +206,7 @@ std::vector<simplex> triangulation(std::vector<Point>& points) {
 }
 
 namespace experimental {
+
 struct circle {
   point c;
   float r2;
@@ -302,5 +303,63 @@ std::vector<simplex> triangulation(std::vector<point>& points) {
 }
 
 }  // namespace experimental
+
+namespace experimental_3d {
+
+struct point {
+  float x, y, z;
+};
+
+constexpr point operator+(point x, point y) noexcept {
+  return {x.x + y.x, x.y + y.y, x.z + y.z};
+}
+
+constexpr point operator-(point x, point y) noexcept {
+  return {x.x - y.x, x.y - y.y, x.z - y.z};
+}
+
+constexpr point operator*(float x, point v) noexcept {
+  return {x * v.x, x * v.y, x * v.z};
+}
+
+constexpr auto dot(point x, point y) noexcept {
+  return x.x * y.x + x.y * y.y + x.z * y.z;
+}
+
+constexpr auto sqnorm(point x) noexcept { return dot(x, x); }
+
+constexpr point cross(point x, point y) noexcept {
+  return {x.y * y.z - x.z * y.y,  //
+          x.z * y.x - x.x * y.z,  //
+          x.x * y.y - x.y * y.x};
+}
+
+struct sphere {
+  point c;
+  float r2;
+};
+
+constexpr auto circumsphere(const point& a, const point& b, const point& c,
+                            const point& d) noexcept {
+  const auto u = b - a;
+  const auto v = c - a;
+  const auto t = d - a;
+
+  const auto vt_cross = cross(v, t);
+  const auto det = 2.0f * dot(u, vt_cross);
+  const auto tu_cross = cross(t, u);
+  const auto uv_cross = cross(u, v);
+  const auto rhs = (1.0f / det) * point{sqnorm(u), sqnorm(v), sqnorm(t)};
+
+  const auto m = rhs.x * vt_cross + rhs.y * tu_cross + rhs.z * uv_cross;
+
+  return sphere{m + a, sqnorm(m)};
+}
+
+constexpr auto intersection(const sphere& s, const point& p) noexcept {
+  return sqnorm(p - s.c) <= s.r2;
+};
+
+}  // namespace experimental_3d
 
 }  // namespace lyrahgames::delaunay
