@@ -16,9 +16,24 @@ struct benchmark {
     for (auto& p : points) p = point{dist(rng), dist(rng)};
     elements.clear();
     {
+      params.setParam("name", " stable");
       params.setParam("points", n);
       PerfEventBlock e(n, params, header);
       elements = delaunay::triangulation(points);
+    }
+    header = false;
+    return *this;
+  }
+
+  benchmark& run_experimental(size_t n) noexcept {
+    points.resize(n);
+    for (auto& p : points) p = point{dist(rng), dist(rng)};
+    elements.clear();
+    {
+      params.setParam("name", "nightly");
+      params.setParam("points", n);
+      PerfEventBlock e(n, params, header);
+      elements = delaunay::experimental::triangulation(points);
     }
     header = false;
     return *this;
@@ -46,9 +61,16 @@ struct benchmark {
 int main() {
   benchmark{}  //
       .run(100)
+      .run_experimental(100)
       .run(1000)
+      .run_experimental(1000)
       .run(10000)
+      .run_experimental(10000)
       .run(20000)
+      .run_experimental(20000)
       // .run(30000)
+      // .run_experimental(30000)
+      // .run_experimental(50000)
+      //
       ;
 }

@@ -41,7 +41,8 @@ int main() {
          << flush;
   };
 
-  generate_points_and_triangulate(1000);
+  constexpr size_t samples = 1000;
+  generate_points_and_triangulate(samples);
 
   // Initialize viewport parameters.
   size_t width = 500;
@@ -110,7 +111,7 @@ int main() {
               break;
 
             case sf::Keyboard::Space:
-              generate_points_and_triangulate(1000);
+              generate_points_and_triangulate(samples);
               update = 2;
               break;
 

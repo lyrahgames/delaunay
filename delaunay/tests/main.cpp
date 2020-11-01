@@ -21,6 +21,7 @@ int main() {
 
   // Construct Delaunay triangulation.
   const auto elements = delaunay::triangulation(points);
+  const auto exp_elements = delaunay::experimental::triangulation(points);
 
   // Print points.
   cout << setfill('-') << setw(50) << '\n'
@@ -41,5 +42,15 @@ int main() {
   for (size_t i = 0; i < elements.size(); ++i)
     cout << setw(7) << i << setw(5) << '|' << setw(10) << elements[i][0]
          << setw(10) << elements[i][1] << setw(10) << elements[i][2] << '\n';
+  cout << setfill('-') << setw(50) << '\n' << setfill(' ') << flush;
+  // Print elements.
+  cout << setw(7) << "Index" << setw(5) << '|' << setw(20) << "Triangle"
+       << '\n'  //
+       << setfill('-') << setw(50) << '\n'
+       << setfill(' ');
+  for (size_t i = 0; i < exp_elements.size(); ++i)
+    cout << setw(7) << i << setw(5) << '|' << setw(10) << exp_elements[i][0]
+         << setw(10) << exp_elements[i][1] << setw(10) << exp_elements[i][2]
+         << '\n';
   cout << setfill('-') << setw(50) << '\n' << setfill(' ') << flush;
 }
