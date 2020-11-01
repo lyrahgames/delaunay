@@ -11,8 +11,8 @@ It was put into an easy-to-use C++ header-only library currently based on the bu
 - build2
 
 ## Supported Platforms
-- Operating System: Linux
-- Compiler: GCC | Clang
+- Operating System: Linux | Windows | MacOS
+- Compiler: GCC | Clang | MSVC | MinGW
 - Build System: build2
 
 ## Installation

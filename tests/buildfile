@@ -1,6 +1,10 @@
 ./: manifest doc{*.md} legal{COPYING}
 
-import libs = doctest%lib{doctest}
+import libs = lyrahgames-delaunay%lib{lyrahgames-delaunay}
+import libs += doctest%lib{doctest}
+import libs += glm%lib{glm}
+import libs += Eigen%lib{Eigen}
+
 ./: exe{tests}: {hxx cxx}{**} $libs
 {
   test = true

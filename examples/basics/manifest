@@ -8,4 +8,6 @@ license: GPL-3.0-or-later ; GNU General Public License v3.0 or later
 depends: * build2 >= 0.13.0
 depends: * bpkg >= 0.13.0
 
+depends: lyrahgames-delaunay == $
+
 requires: sfml-graphics ; SFML Graphics Module

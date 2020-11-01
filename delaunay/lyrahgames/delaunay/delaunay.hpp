@@ -1,20 +1,49 @@
 #pragma once
 #include <algorithm>
 #include <array>
+#include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
 namespace lyrahgames::delaunay {
 
+namespace detail {
+
+template <typename F, typename... Args,
+          typename = decltype(std::declval<F>()(std::declval<Args&&>()...))>
+std::true_type is_valid_implementation(void*);
+
+template <typename F, typename... Args>
+std::false_type is_valid_implementation(...);
+
+constexpr auto is_valid = [](auto f) constexpr {
+  return [](auto&&... args) constexpr {
+    return decltype(
+        is_valid_implementation<decltype(f), decltype(args)&&...>(nullptr)){};
+  };
+};
+
+constexpr auto has_public_xy = is_valid([](auto&& v) -> decltype(v.x * v.y) {});
+
+constexpr auto has_function_xy =
+    is_valid([](auto&& v) -> decltype(v.x() * v.y()) {});
+
+constexpr auto has_accesss_operator =
+    is_valid([](auto&& v) -> decltype(v[0] * v[1]) {});
+
+}  // namespace detail
+
 struct point {
   float x, y;
 };
 
-constexpr auto circumcircle_intersection(const point* a,  //
-                                         const point* b,  //
-                                         const point* c,  //
-                                         const point* p) noexcept {
+template <typename Point>
+constexpr auto circumcircle_intersection(const Point* a,  //
+                                         const Point* b,  //
+                                         const Point* c,  //
+                                         const Point* p) noexcept
+    -> std::enable_if_t<decltype(detail::has_public_xy(*a))::value, bool> {
   const auto axdx = a->x - p->x;
   const auto aydy = a->y - p->y;
   const auto bxdx = b->x - p->x;
@@ -29,6 +58,59 @@ constexpr auto circumcircle_intersection(const point* a,  //
                    sqsum_a * (bxdx * cydy - cxdx * bydy);
   const point edge1{b->x - a->x, b->y - a->y};
   const point edge2{c->x - a->x, c->y - a->y};
+  const auto d = (edge1.x * edge2.y - edge1.y * edge2.x);
+  return (d * det) > 0.0f;
+};
+
+template <typename Point>
+constexpr auto circumcircle_intersection(const Point* a,  //
+                                         const Point* b,  //
+                                         const Point* c,  //
+                                         const Point* p) noexcept
+    -> std::enable_if_t<!decltype(detail::has_public_xy(*a))::value &&
+                            decltype(detail::has_function_xy(*a))::value,
+                        bool> {
+  const auto axdx = a->x() - p->x();
+  const auto aydy = a->y() - p->y();
+  const auto bxdx = b->x() - p->x();
+  const auto bydy = b->y() - p->y();
+  const auto cxdx = c->x() - p->x();
+  const auto cydy = c->y() - p->y();
+  const auto sqsum_a = axdx * axdx + aydy * aydy;
+  const auto sqsum_b = bxdx * bxdx + bydy * bydy;
+  const auto sqsum_c = cxdx * cxdx + cydy * cydy;
+  const auto det = axdx * (bydy * sqsum_c - cydy * sqsum_b) -
+                   aydy * (bxdx * sqsum_c - cxdx * sqsum_b) +
+                   sqsum_a * (bxdx * cydy - cxdx * bydy);
+  const point edge1{b->x() - a->x(), b->y() - a->y()};
+  const point edge2{c->x() - a->x(), c->y() - a->y()};
+  const auto d = (edge1.x * edge2.y - edge1.y * edge2.x);
+  return (d * det) > 0.0f;
+};
+
+template <typename Point>
+constexpr auto circumcircle_intersection(const Point* a,  //
+                                         const Point* b,  //
+                                         const Point* c,  //
+                                         const Point* p) noexcept
+    -> std::enable_if_t<!decltype(detail::has_public_xy(*a))::value &&
+                            !decltype(detail::has_function_xy(*a))::value &&
+                            decltype(detail::has_accesss_operator(*a))::value,
+                        bool> {
+  const auto axdx = (*a)[0] - (*p)[0];
+  const auto aydy = (*a)[1] - (*p)[1];
+  const auto bxdx = (*b)[0] - (*p)[0];
+  const auto bydy = (*b)[1] - (*p)[1];
+  const auto cxdx = (*c)[0] - (*p)[0];
+  const auto cydy = (*c)[1] - (*p)[1];
+  const auto sqsum_a = axdx * axdx + aydy * aydy;
+  const auto sqsum_b = bxdx * bxdx + bydy * bydy;
+  const auto sqsum_c = cxdx * cxdx + cydy * cydy;
+  const auto det = axdx * (bydy * sqsum_c - cydy * sqsum_b) -
+                   aydy * (bxdx * sqsum_c - cxdx * sqsum_b) +
+                   sqsum_a * (bxdx * cydy - cxdx * bydy);
+  const point edge1{(*b)[0] - (*a)[0], (*b)[1] - (*a)[1]};
+  const point edge2{(*c)[0] - (*a)[0], (*c)[1] - (*a)[1]};
   const auto d = (edge1.x * edge2.y - edge1.y * edge2.x);
   return (d * det) > 0.0f;
 };
@@ -59,9 +141,10 @@ struct simplex : public std::array<size_t, 3> {
   }
 };
 
-std::vector<simplex> triangulation(std::vector<point>& points) {
+template <typename Point>
+std::vector<simplex> triangulation(std::vector<Point>& points) {
   // Construct much larger bounding box for all points.
-  constexpr point bounds[4] = {
+  const Point bounds[4] = {
       {-1.0e6f, -1.0e6f},
       {1.0e6f, -1.0e6f},
       {1.0e6f, 1.0e6f},
@@ -85,9 +168,9 @@ std::vector<simplex> triangulation(std::vector<point>& points) {
     // Test for the circumcircle intersection with every polytope.
     for (auto it = simplices.begin(); it != simplices.end();) {
       auto& t = *it;
-      if (circumcircle_intersection(reinterpret_cast<const point*>(t[0]),
-                                    reinterpret_cast<const point*>(t[1]),
-                                    reinterpret_cast<const point*>(t[2]), &p)) {
+      if (circumcircle_intersection(reinterpret_cast<const Point*>(t[0]),
+                                    reinterpret_cast<const Point*>(t[1]),
+                                    reinterpret_cast<const Point*>(t[2]), &p)) {
         // If so, simplex has to be removed and added to the polytope.
         ++polytope[{t[0], t[1]}];
         ++polytope[{t[1], t[2]}];
@@ -109,11 +192,11 @@ std::vector<simplex> triangulation(std::vector<point>& points) {
   result.reserve(simplices.size());
   for (const auto& t : simplices) {
     const auto a =
-        static_cast<size_t>(reinterpret_cast<const point*>(t[0]) - &points[0]);
+        static_cast<size_t>(reinterpret_cast<const Point*>(t[0]) - &points[0]);
     const auto b =
-        static_cast<size_t>(reinterpret_cast<const point*>(t[1]) - &points[0]);
+        static_cast<size_t>(reinterpret_cast<const Point*>(t[1]) - &points[0]);
     const auto c =
-        static_cast<size_t>(reinterpret_cast<const point*>(t[2]) - &points[0]);
+        static_cast<size_t>(reinterpret_cast<const Point*>(t[2]) - &points[0]);
 
     if ((a < points.size()) && (b < points.size()) && (c < points.size()))
       result.emplace_back(a, b, c);
@@ -123,7 +206,6 @@ std::vector<simplex> triangulation(std::vector<point>& points) {
 }
 
 namespace experimental {
-
 struct circle {
   point c;
   float r2;
@@ -150,7 +232,7 @@ constexpr auto intersection(const circle& c, const point* p) noexcept {
 
 std::vector<simplex> triangulation(std::vector<point>& points) {
   // Construct much larger bounding box for all points.
-  constexpr point bounds[4] = {
+  const point bounds[4] = {
       {-1.0e3f, -1.0e3f},
       {1.0e3f, -1.0e3f},
       {1.0e3f, 1.0e3f},
