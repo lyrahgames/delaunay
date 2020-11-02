@@ -12,6 +12,8 @@
 //
 #include <Eigen/Dense>
 //
+#include <SFML/Graphics.hpp>
+//
 #include <lyrahgames/delaunay/delaunay.hpp>
 
 struct custom_point {
@@ -38,6 +40,7 @@ TEST_CASE("Vector types from different libraries can be used as input.") {
     vector<glm::vec2> glm_points(samples);
     vector<Eigen::Vector2f> eigen_points(samples);
     vector<custom_point> custom_points(samples);
+    vector<sf::Vector2f> sfml_points(samples);
     for (size_t i = 0; i < samples; ++i) {
       const auto x = random();
       const auto y = random();
@@ -45,6 +48,7 @@ TEST_CASE("Vector types from different libraries can be used as input.") {
       glm_points[i] = glm::vec2{x, y};
       eigen_points[i] = Eigen::Vector2f{x, y};
       custom_points[i] = custom_point{x, y};
+      sfml_points[i] = sf::Vector2f{x, y};
     }
 
     // Construct Delaunay triangulation for both point types.
@@ -56,9 +60,12 @@ TEST_CASE("Vector types from different libraries can be used as input.") {
     sort(begin(eigen_elements), end(eigen_elements));
     auto custom_elements = delaunay::triangulation(custom_points);
     sort(begin(custom_elements), end(custom_elements));
+    auto sfml_elements = delaunay::triangulation(sfml_points);
+    sort(begin(sfml_elements), end(sfml_elements));
 
     REQUIRE(elements == glm_elements);
     REQUIRE(elements == eigen_elements);
     REQUIRE(elements == custom_elements);
+    REQUIRE(elements == sfml_elements);
   }
 }
