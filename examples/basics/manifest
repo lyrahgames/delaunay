@@ -10,7 +10,7 @@ depends: * bpkg >= 0.13.0
 
 depends: lyrahgames-delaunay == $
 
-depends: glm
+depends: glm ^0.9.9
 
 requires: sfml-graphics ; SFML Graphics Module
 requires: glfw3 ; GLFW

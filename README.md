@@ -19,7 +19,9 @@ It was put into an easy-to-use C++ header-only library currently based on the bu
 
 ## Usage with build2
 
-## Example
+## Examples
+
+## Benchmarks
 
 ## API
 

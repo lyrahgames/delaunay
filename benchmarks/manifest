@@ -2,12 +2,19 @@
 name: lyrahgames-delaunay-benchmarks
 version: 0.1.0-a.0.z
 project: lyrahgames
-summary: Basics Examples of Delaunay Triangulation by lyrahgames-delaunay
+summary: Benchmarks for lyrahgames-delaunay
 license: GPL-3.0-or-later ; GNU General Public License v3.0 or later
+
+description-file: README.md
+
+url: https://github.com/lyrahgames/delaunay
+
+email: lyrahgames@mailbox.org
+build-error-email: lyrahgames@mailbox.org
 
 depends: * build2 >= 0.13.0
 depends: * bpkg >= 0.13.0
 
 depends: lyrahgames-delaunay == $
 
-depends: perfevent
+depends: perfevent ^0.2.0
