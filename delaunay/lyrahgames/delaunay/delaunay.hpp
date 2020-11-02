@@ -360,6 +360,132 @@ constexpr auto intersection(const sphere& s, const point& p) noexcept {
   return sqnorm(p - s.c) <= s.r2;
 };
 
+struct face : public std::array<size_t, 3> {
+  using base_type = std::array<size_t, 3>;
+
+  struct hash {
+    constexpr size_t operator()(const face& t) const noexcept {
+      return t[0] ^ (t[1] << 3) ^ (t[2] << 5);
+    }
+  };
+
+  face(size_t a, size_t b, size_t c) : base_type{a, b, c} {
+    std::sort(begin(), end());
+  }
+};
+
+struct tetrahedron : public std::array<size_t, 4> {
+  using base_type = std::array<size_t, 4>;
+
+  struct hash {
+    constexpr size_t operator()(const tetrahedron& t) const noexcept {
+      return t[0] ^ (t[1] << 3) ^ (t[2] << 5) ^ (t[3] << 7);
+    }
+  };
+
+  tetrahedron(size_t a, size_t b, size_t c, size_t d) : base_type{a, b, c, d} {
+    std::sort(begin(), end());
+  }
+};
+
+std::vector<tetrahedron> triangulation(std::vector<point>& points) {
+  // Construct much larger bounding box for all points.
+  constexpr float big_num = 1.0e3f;
+  const point bounds[8] = {
+      {-big_num, -big_num, -big_num}, {+big_num, -big_num, -big_num},
+      {+big_num, +big_num, -big_num}, {-big_num, +big_num, -big_num},
+      {-big_num, +big_num, +big_num}, {+big_num, +big_num, +big_num},
+      {+big_num, -big_num, +big_num}, {-big_num, -big_num, +big_num},
+  };
+  std::unordered_map<tetrahedron, sphere, tetrahedron::hash> simplices{
+      std::pair<tetrahedron, sphere>{
+          {reinterpret_cast<size_t>(&bounds[0]),  //
+           reinterpret_cast<size_t>(&bounds[1]),  //
+           reinterpret_cast<size_t>(&bounds[3]),  //
+           reinterpret_cast<size_t>(&bounds[7])},
+          circumsphere(bounds[0], bounds[1], bounds[3], bounds[7])},
+      std::pair<tetrahedron, sphere>{
+          {reinterpret_cast<size_t>(&bounds[1]),  //
+           reinterpret_cast<size_t>(&bounds[2]),  //
+           reinterpret_cast<size_t>(&bounds[3]),  //
+           reinterpret_cast<size_t>(&bounds[5])},
+          circumsphere(bounds[1], bounds[2], bounds[3], bounds[5])},
+      std::pair<tetrahedron, sphere>{
+          {reinterpret_cast<size_t>(&bounds[1]),  //
+           reinterpret_cast<size_t>(&bounds[3]),  //
+           reinterpret_cast<size_t>(&bounds[5]),  //
+           reinterpret_cast<size_t>(&bounds[7])},
+          circumsphere(bounds[1], bounds[3], bounds[5], bounds[7])},
+      std::pair<tetrahedron, sphere>{
+          {reinterpret_cast<size_t>(&bounds[1]),  //
+           reinterpret_cast<size_t>(&bounds[5]),  //
+           reinterpret_cast<size_t>(&bounds[6]),  //
+           reinterpret_cast<size_t>(&bounds[7])},
+          circumsphere(bounds[1], bounds[5], bounds[6], bounds[7])},
+      std::pair<tetrahedron, sphere>{
+          {reinterpret_cast<size_t>(&bounds[3]),  //
+           reinterpret_cast<size_t>(&bounds[4]),  //
+           reinterpret_cast<size_t>(&bounds[5]),  //
+           reinterpret_cast<size_t>(&bounds[7])},
+          circumsphere(bounds[3], bounds[4], bounds[5], bounds[7])},
+  };
+
+  std::unordered_map<face, int, face::hash> polytope{};
+
+  // Incrementally insert every point.
+  for (const auto& p : points) {
+    // Construct the polytope for a new polytope
+    // according to Bowyer and Watson.
+    polytope.clear();
+    // Test for the circumcircle intersection with every polytope.
+    for (auto it = simplices.begin(); it != simplices.end();) {
+      auto& t = it->first;
+      if (intersection(it->second, p)) {
+        // If so, tetrahedron has to be removed and added to the polytope.
+        ++polytope[{t[0], t[1], t[2]}];
+        ++polytope[{t[1], t[2], t[3]}];
+        ++polytope[{t[2], t[3], t[0]}];
+        ++polytope[{t[3], t[0], t[1]}];
+        it = simplices.erase(it);
+      } else {
+        ++it;
+      }
+    }
+    // Add new simplices by connecting boundary facets
+    // of the polytope with the new point.
+    for (auto& [e, i] : polytope) {
+      if (i == 1) {
+        const auto c = circumsphere(*reinterpret_cast<const point*>(e[0]),
+                                    *reinterpret_cast<const point*>(e[1]),
+                                    *reinterpret_cast<const point*>(e[2]), p);
+        // std::cout << c.c.x << ' ' << c.c.y << ' ' << c.r2 << std::endl;
+        simplices.insert({{e[0], e[1], e[2], reinterpret_cast<size_t>(&p)}, c});
+      }
+    }
+  }
+
+  // Construct the result vector by adding all simplices
+  // not referencing points of the bounding box.
+  std::vector<tetrahedron> result{};
+  result.reserve(simplices.size());
+  for (const auto& [t, _] : simplices) {
+    const auto a =
+        static_cast<size_t>(reinterpret_cast<const point*>(t[0]) - &points[0]);
+    const auto b =
+        static_cast<size_t>(reinterpret_cast<const point*>(t[1]) - &points[0]);
+    const auto c =
+        static_cast<size_t>(reinterpret_cast<const point*>(t[2]) - &points[0]);
+    const auto d =
+        static_cast<size_t>(reinterpret_cast<const point*>(t[3]) - &points[0]);
+
+    if ((a < points.size()) && (b < points.size()) && (c < points.size()) &&
+        (d < points.size()))
+      result.emplace_back(a, b, c, d);
+  }
+
+  return result;
+}
+
 }  // namespace experimental_3d
 
 }  // namespace lyrahgames::delaunay
