@@ -9,3 +9,5 @@ import libs += Eigen%lib{Eigen}
 {
   test = true
 }
+
+./: install = false
