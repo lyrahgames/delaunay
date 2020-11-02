@@ -114,6 +114,39 @@ Then import the library in your `buildfile` to be able to link against your own 
 
 ## Examples
 
+```c++
+#include <random>
+#include <vector>
+//
+#include <lyrahgames/delaunay/delaunay.hpp>
+
+int main() {
+  using namespace std;
+  using namespace lyrahgames;
+  using delaunay::point;
+
+  // Initialize oracle for random numbers.
+  mt19937 rng{random_device{}()};
+  uniform_real_distribution<float> dist{0, 1};
+  const auto random = [&] { return dist(rng); };
+
+  // Generate random points.
+  vector<point> points(5);
+  for (auto& p : points) p = point{random(), random()};
+
+  // Construct Delaunay triangulation.
+  const auto elements = delaunay::triangulation(points);
+}
+```
+
+![](docs/images/random_points_2d.png)
+
+|3D Triangulation | Surface Triangles |
+|---|---|
+| ![](docs/images/random_points_3d.png) | ![](docs/images/random_points_3d_surface.png) |
+
+## Tests
+
 ## Benchmarks
 
 ## API
@@ -121,6 +154,8 @@ Then import the library in your `buildfile` to be able to link against your own 
 ## Features
 
 ## Background
+### Circumcircles and Circumspheres
+### Bowyer-Watson Algorithm
 
 ## Implementation Details
 

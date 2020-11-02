@@ -13,4 +13,6 @@
 !COPYING
 !*.md
 
+!docs/images/*.png
+
 !.gitignore
