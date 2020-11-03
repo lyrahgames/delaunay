@@ -334,6 +334,16 @@ constexpr point cross(point x, point y) noexcept {
           x.x * y.y - x.y * y.x};
 }
 
+constexpr point min(point x, point y) noexcept {
+  constexpr auto f = [](auto x, auto y) { return (x < y) ? x : y; };
+  return {f(x.x, y.x), f(x.y, y.y), f(x.z, y.z)};
+}
+
+constexpr point max(point x, point y) noexcept {
+  constexpr auto f = [](auto x, auto y) { return (x < y) ? x : y; };
+  return {f(x.x, y.x), f(x.y, y.y), f(x.z, y.z)};
+}
+
 struct sphere {
   point c;
   float r2;
@@ -388,7 +398,31 @@ struct tetrahedron : public std::array<size_t, 4> {
   }
 };
 
-std::vector<tetrahedron> triangulation(std::vector<point>& points) {
+struct aabb_t {
+  point min{};
+  point max{};
+};
+
+inline aabb_t aabb(const std::vector<point>& points) {
+  auto p_min = points[0];
+  auto p_max = points[0];
+  for (size_t i = 1; i < points.size(); ++i) {
+    p_min = min(p_min, points[i]);
+    p_max = max(p_max, points[i]);
+  }
+  return {p_min, p_max};
+}
+
+constexpr std::array<point, 4> bounding_tetrahedron(const sphere& s) noexcept {
+  const point a{-0.5, -sqrt(3) / 6, -sqrt(6) / 12};
+  const point b{0.5, -sqrt(3) / 6, -sqrt(6) / 12};
+  const point c{0, sqrt(3) / 3, -sqrt(6) / 12};
+  const point d{0, 0, sqrt(6) / 4};
+  const auto k = 2.0 * sqrt(6.0) * sqrt(s.r2);
+  return {k * a + s.c, k * b + s.c, k * c + s.c, k * d + s.c};
+}
+
+std::vector<tetrahedron> triangulation(const std::vector<point>& points) {
   // Construct much larger bounding box for all points.
   constexpr float big_num = 1.0e3f;
   const point bounds[8] = {

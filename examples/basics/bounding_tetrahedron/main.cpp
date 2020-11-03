@@ -23,89 +23,59 @@ float height = 450;
 glm::vec2 fov{M_PI_4 * width / height, M_PI_4};
 glm::vec3 origin{};
 glm::vec3 up{0, 1, 0};
-glm::vec3 camera{5, 0.0f, M_PI_2};
+glm::vec3 camera{20, 0.0f, M_PI_2};
+
+struct vertex {
+  float x, y, z;
+  float r{}, g{}, b{};
+};
 
 using namespace std;
 using namespace lyrahgames;
 using delaunay::experimental_3d::point;
 
-using vertex = point;
-
 // Generate random points in sphere.
 mt19937 rng{random_device{}()};
-uniform_real_distribution<float> dist{0.0f, 1.0f};
-const size_t samples = 500;
+uniform_real_distribution<float> dist{0, 1};
+const size_t samples = 100000;
+array<point, 4> tetrahedron;
 vector<vertex> vertices(samples);
-vector<uint32_t> elements{};
-vector<uint32_t> surface_elements{};
+vector<vertex> tetra_vertices(4);
 
-void generate_random_points_and_triangulate() {
+void generate_tetrahedron_and_check_points() {
+  const auto radius = dist(rng);
+  const auto center = point{dist(rng), dist(rng), dist(rng)};
+
   for (auto& v : vertices) {
-    // const auto u = 2 * dist(rng) - 1;
-    // const auto phi = 2 * float(M_PI) * dist(rng);
-    // const auto r = pow(dist(rng), 1 / 3.0f);
-    // // const auto r = 1.0f;
-    // const auto p = sqrt(1 - u * u);
-    // v = r * point{cos(phi) * p, sin(phi) * p, u};
-    v = point{2 * dist(rng) - 1, 2 * dist(rng) - 1, 2 * dist(rng) - 1};
+    const auto u = 2 * dist(rng) - 1;
+    const auto phi = 2 * float(M_PI) * dist(rng);
+    const auto r = radius * pow(dist(rng), 1 / 3.0f);
+    // const auto r = 1.0f;
+    const auto p = sqrt(1 - u * u);
+    v = vertex{r * cos(phi) * p + center.x, r * sin(phi) * p + center.y,
+               r * u + center.z};
   }
 
-  const auto tetrahedrons = delaunay::experimental_3d::triangulation(vertices);
-
-  elements.resize(12 * tetrahedrons.size());
-  size_t i = 0;
-  for (const auto& t : tetrahedrons) {
-    elements[i + 0] = t[0];
-    elements[i + 1] = t[1];
-    elements[i + 2] = t[2];
-
-    elements[i + 3] = t[1];
-    elements[i + 4] = t[2];
-    elements[i + 5] = t[3];
-
-    elements[i + 6] = t[2];
-    elements[i + 7] = t[3];
-    elements[i + 8] = t[0];
-
-    elements[i + 9] = t[3];
-    elements[i + 10] = t[0];
-    elements[i + 11] = t[1];
-
-    i += 12;
-  }
-
-  unordered_map<delaunay::experimental_3d::face, int,
-                delaunay::experimental_3d::face::hash>
-      tmp;
-  for (const auto& t : tetrahedrons) {
-    ++tmp[{t[0], t[1], t[2]}];
-    ++tmp[{t[1], t[2], t[3]}];
-    ++tmp[{t[2], t[3], t[0]}];
-    ++tmp[{t[3], t[0], t[1]}];
-  }
-
-  surface_elements.clear();
-  for (const auto& [f, i] : tmp) {
-    if (i == 1) {
-      surface_elements.push_back(f[0]);
-      surface_elements.push_back(f[1]);
-      surface_elements.push_back(f[2]);
-    }
+  tetrahedron = delaunay::experimental_3d::bounding_tetrahedron(
+      {center, radius * radius});
+  // Tetrahedron
+  for (int i = 0; i < 4; ++i) {
+    // tetrahedron[i] = point{dist(rng), dist(rng), dist(rng)};
+    tetra_vertices[i] =
+        vertex{tetrahedron[i].x, tetrahedron[i].y, tetrahedron[i].z,
+               tetrahedron[i].x, tetrahedron[i].y, tetrahedron[i].z};
   }
 }
 
-bool draw_surface_elements = false;
-
 int main(void) {
   cout  //
-      << "Space:       Regenerate points and triangulation.\n"
+      << "Space:       Regenerate tetrahedron and points.\n"
       << "Left Mouse:  Turn around observer.\n"
       << "Mouse Wheel: Zoom in and out.\n"
       << "Escape:      Close the application.\n"
-      << "s:           Toggle interior triangles.\n"
       << flush;
 
-  generate_random_points_and_triangulate();
+  generate_tetrahedron_and_check_points();
 
   glfwSetErrorCallback([](int error, const char* description) {
     throw runtime_error{"GLFW Error " + to_string(error) + ": " + description};
@@ -117,8 +87,8 @@ int main(void) {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_SAMPLES, 4);
 
-  auto window = glfwCreateWindow(
-      width, height, "3D Delaunay Triangulation Viewer", nullptr, nullptr);
+  auto window = glfwCreateWindow(width, height, "Bounding Tetrahedron Viewer",
+                                 nullptr, nullptr);
   glfwMakeContextCurrent(window);
   glbinding::initialize(glfwGetProcAddress);
 
@@ -133,29 +103,9 @@ int main(void) {
       glfwSetWindowShouldClose(window, GLFW_TRUE);
 
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-      generate_random_points_and_triangulate();
+      generate_tetrahedron_and_check_points();
       glBufferData(GL_ARRAY_BUFFER, sizeof(vertex) * vertices.size(),
                    vertices.data(), GL_STATIC_DRAW);
-      if (draw_surface_elements)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     surface_elements.size() * sizeof(uint32_t),
-                     surface_elements.data(), GL_STATIC_DRAW);
-      else
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     elements.size() * sizeof(uint32_t), elements.data(),
-                     GL_STATIC_DRAW);
-    }
-
-    if (key == GLFW_KEY_S && action == GLFW_PRESS) {
-      draw_surface_elements = !draw_surface_elements;
-      if (draw_surface_elements)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     surface_elements.size() * sizeof(uint32_t),
-                     surface_elements.data(), GL_STATIC_DRAW);
-      else
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     elements.size() * sizeof(uint32_t), elements.data(),
-                     GL_STATIC_DRAW);
     }
   });
   glfwSetScrollCallback(window, [](GLFWwindow* window, double x, double y) {
@@ -167,10 +117,11 @@ int main(void) {
       "#version 330\n"
       "uniform mat4 MVP;"
       "attribute vec3 vPos;"
+      "attribute vec3 vCol;"
       "out vec3 color;"
       "void main() {"
       "  gl_Position = MVP * vec4(vPos, 1.0);"
-      "  color = 0.5 * (vPos + 1);"
+      "  color = vCol;"
       "}";
   glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
   glCompileShader(vertex_shader);
@@ -179,7 +130,7 @@ int main(void) {
       "#version 330\n"
       "in vec3 color;"
       "void main() {"
-      "  gl_FragColor = vec4(color, 1.0);"
+      "  gl_FragColor = vec4(color, 0.5);"
       "}";
   glShaderSource(fragment_shader, 1, &fragment_shader_text, NULL);
   glCompileShader(fragment_shader);
@@ -189,6 +140,7 @@ int main(void) {
   glLinkProgram(program);
   auto mvp_location = glGetUniformLocation(program, "MVP");
   auto vpos_location = glGetAttribLocation(program, "vPos");
+  auto vcol_location = glGetAttribLocation(program, "vCol");
 
   // Create OpenGl vertex array for point rendering;
   GLuint vertex_array;
@@ -202,23 +154,30 @@ int main(void) {
   glEnableVertexAttribArray(vpos_location);
   glVertexAttribPointer(vpos_location, 3, GL_FLOAT, GL_FALSE, sizeof(vertex),
                         (void*)0);
+  glEnableVertexAttribArray(vcol_location);
+  glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE, sizeof(vertex),
+                        (void*)12);
 
   GLuint element_buffer;
   glGenBuffers(1, &element_buffer);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer);
+  vector<uint32_t> elements{0, 1, 2,  //
+                            0, 1, 3,  //
+                            0, 2, 3,  //
+                            1, 2, 3};
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size() * sizeof(uint32_t),
                elements.data(), GL_STATIC_DRAW);
 
-  glClearColor(0.0, 0.0, 0.0, 1.0f);
+  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   glPointSize(4.0f);
-  glLineWidth(1.0f);
+  glLineWidth(4.0f);
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_POINT_SMOOTH);
   glEnable(GL_POINT_SPRITE);
   glEnable(GL_BLEND);
-  glEnable(GL_DEPTH_TEST);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_DEPTH_TEST);
 
   glm::vec2 old_mouse_pos{};
   glm::vec2 mouse_pos{};
@@ -254,12 +213,13 @@ int main(void) {
     glUseProgram(program);
     glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
 
-    if (draw_surface_elements)
-      glDrawElements(GL_TRIANGLES, surface_elements.size(), GL_UNSIGNED_INT,
-                     nullptr);
-    else
-      glDrawElements(GL_TRIANGLES, elements.size(), GL_UNSIGNED_INT, nullptr);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertex) * vertices.size(),
+                 vertices.data(), GL_DYNAMIC_DRAW);
     glDrawArrays(GL_POINTS, 0, vertices.size());
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertex) * tetra_vertices.size(),
+                 tetra_vertices.data(), GL_DYNAMIC_DRAW);
+    glDrawElements(GL_TRIANGLES, elements.size(), GL_UNSIGNED_INT, nullptr);
 
     glfwSwapBuffers(window);
     glfwPollEvents();
