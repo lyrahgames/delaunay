@@ -46,18 +46,26 @@ void generate_tetrahedron_and_check_points() {
   const auto radius = dist(rng);
   const auto center = point{dist(rng), dist(rng), dist(rng)};
 
+  vector<point> points{};
+
   for (auto& v : vertices) {
-    const auto u = 2 * dist(rng) - 1;
-    const auto phi = 2 * float(M_PI) * dist(rng);
-    const auto r = radius * pow(dist(rng), 1 / 3.0f);
-    // const auto r = 1.0f;
-    const auto p = sqrt(1 - u * u);
-    v = vertex{r * cos(phi) * p + center.x, r * sin(phi) * p + center.y,
-               r * u + center.z};
+    // const auto u = 2 * dist(rng) - 1;
+    // const auto phi = 2 * float(M_PI) * dist(rng);
+    // const auto r = radius * pow(dist(rng), 1 / 3.0f);
+    // // const auto r = 1.0f;
+    // const auto p = sqrt(1 - u * u);
+    // v = vertex{r * cos(phi) * p + center.x, r * sin(phi) * p + center.y,
+    //            r * u + center.z};
+    v = {radius * dist(rng) + center.x, radius * dist(rng) + center.y,
+         radius * dist(rng) + center.z};
+    points.push_back({v.x, v.y, v.z});
   }
 
-  tetrahedron = delaunay::experimental_3d::bounding_tetrahedron(
-      {center, radius * radius});
+  const auto box = aabb(points);
+  const auto tmp = bounding_sphere(box);
+  // cout << box.min.x << endl;
+  // cout << tmp.c.x << ' ' << tmp.r2 << endl;
+  tetrahedron = delaunay::experimental_3d::bounding_tetrahedron(tmp);
   // Tetrahedron
   for (int i = 0; i < 4; ++i) {
     // tetrahedron[i] = point{dist(rng), dist(rng), dist(rng)};

@@ -340,7 +340,7 @@ constexpr point min(point x, point y) noexcept {
 }
 
 constexpr point max(point x, point y) noexcept {
-  constexpr auto f = [](auto x, auto y) { return (x < y) ? x : y; };
+  constexpr auto f = [](auto x, auto y) { return (x > y) ? x : y; };
   return {f(x.x, y.x), f(x.y, y.y), f(x.z, y.z)};
 }
 
@@ -403,7 +403,7 @@ struct aabb_t {
   point max{};
 };
 
-inline aabb_t aabb(const std::vector<point>& points) {
+inline aabb_t aabb(const std::vector<point>& points) noexcept {
   auto p_min = points[0];
   auto p_max = points[0];
   for (size_t i = 1; i < points.size(); ++i) {
@@ -411,6 +411,10 @@ inline aabb_t aabb(const std::vector<point>& points) {
     p_max = max(p_max, points[i]);
   }
   return {p_min, p_max};
+}
+
+constexpr sphere bounding_sphere(const aabb_t& box) noexcept {
+  return {0.5 * (box.min + box.max), sqnorm(0.5 * (box.max - box.min))};
 }
 
 constexpr std::array<point, 4> bounding_tetrahedron(const sphere& s) noexcept {
@@ -423,46 +427,58 @@ constexpr std::array<point, 4> bounding_tetrahedron(const sphere& s) noexcept {
 }
 
 std::vector<tetrahedron> triangulation(const std::vector<point>& points) {
-  // Construct much larger bounding box for all points.
-  constexpr float big_num = 1.0e3f;
-  const point bounds[8] = {
-      {-big_num, -big_num, -big_num}, {+big_num, -big_num, -big_num},
-      {+big_num, +big_num, -big_num}, {-big_num, +big_num, -big_num},
-      {-big_num, +big_num, +big_num}, {+big_num, +big_num, +big_num},
-      {+big_num, -big_num, +big_num}, {-big_num, -big_num, +big_num},
-  };
+  // Construct regular super tetrahedron which contains all given points.
+  const auto box = aabb(points);
+  const auto bound_sphere = bounding_sphere(box);
+  const auto bounds = bounding_tetrahedron(bound_sphere);
   std::unordered_map<tetrahedron, sphere, tetrahedron::hash> simplices{
       std::pair<tetrahedron, sphere>{
           {reinterpret_cast<size_t>(&bounds[0]),  //
            reinterpret_cast<size_t>(&bounds[1]),  //
-           reinterpret_cast<size_t>(&bounds[3]),  //
-           reinterpret_cast<size_t>(&bounds[7])},
-          circumsphere(bounds[0], bounds[1], bounds[3], bounds[7])},
-      std::pair<tetrahedron, sphere>{
-          {reinterpret_cast<size_t>(&bounds[1]),  //
            reinterpret_cast<size_t>(&bounds[2]),  //
-           reinterpret_cast<size_t>(&bounds[3]),  //
-           reinterpret_cast<size_t>(&bounds[5])},
-          circumsphere(bounds[1], bounds[2], bounds[3], bounds[5])},
-      std::pair<tetrahedron, sphere>{
-          {reinterpret_cast<size_t>(&bounds[1]),  //
-           reinterpret_cast<size_t>(&bounds[3]),  //
-           reinterpret_cast<size_t>(&bounds[5]),  //
-           reinterpret_cast<size_t>(&bounds[7])},
-          circumsphere(bounds[1], bounds[3], bounds[5], bounds[7])},
-      std::pair<tetrahedron, sphere>{
-          {reinterpret_cast<size_t>(&bounds[1]),  //
-           reinterpret_cast<size_t>(&bounds[5]),  //
-           reinterpret_cast<size_t>(&bounds[6]),  //
-           reinterpret_cast<size_t>(&bounds[7])},
-          circumsphere(bounds[1], bounds[5], bounds[6], bounds[7])},
-      std::pair<tetrahedron, sphere>{
-          {reinterpret_cast<size_t>(&bounds[3]),  //
-           reinterpret_cast<size_t>(&bounds[4]),  //
-           reinterpret_cast<size_t>(&bounds[5]),  //
-           reinterpret_cast<size_t>(&bounds[7])},
-          circumsphere(bounds[3], bounds[4], bounds[5], bounds[7])},
-  };
+           reinterpret_cast<size_t>(&bounds[3])},
+          circumsphere(bounds[0], bounds[1], bounds[2], bounds[3])}};
+
+  // Construct much larger bounding box for all points.
+  // constexpr float big_num = 1.0e3f;
+  // const point bounds[8] = {
+  //     {-big_num, -big_num, -big_num}, {+big_num, -big_num, -big_num},
+  //     {+big_num, +big_num, -big_num}, {-big_num, +big_num, -big_num},
+  //     {-big_num, +big_num, +big_num}, {+big_num, +big_num, +big_num},
+  //     {+big_num, -big_num, +big_num}, {-big_num, -big_num, +big_num},
+  // };
+  // std::unordered_map<tetrahedron, sphere, tetrahedron::hash> simplices{
+  //     std::pair<tetrahedron, sphere>{
+  //         {reinterpret_cast<size_t>(&bounds[0]),  //
+  //          reinterpret_cast<size_t>(&bounds[1]),  //
+  //          reinterpret_cast<size_t>(&bounds[3]),  //
+  //          reinterpret_cast<size_t>(&bounds[7])},
+  //         circumsphere(bounds[0], bounds[1], bounds[3], bounds[7])},
+  //     std::pair<tetrahedron, sphere>{
+  //         {reinterpret_cast<size_t>(&bounds[1]),  //
+  //          reinterpret_cast<size_t>(&bounds[2]),  //
+  //          reinterpret_cast<size_t>(&bounds[3]),  //
+  //          reinterpret_cast<size_t>(&bounds[5])},
+  //         circumsphere(bounds[1], bounds[2], bounds[3], bounds[5])},
+  //     std::pair<tetrahedron, sphere>{
+  //         {reinterpret_cast<size_t>(&bounds[1]),  //
+  //          reinterpret_cast<size_t>(&bounds[3]),  //
+  //          reinterpret_cast<size_t>(&bounds[5]),  //
+  //          reinterpret_cast<size_t>(&bounds[7])},
+  //         circumsphere(bounds[1], bounds[3], bounds[5], bounds[7])},
+  //     std::pair<tetrahedron, sphere>{
+  //         {reinterpret_cast<size_t>(&bounds[1]),  //
+  //          reinterpret_cast<size_t>(&bounds[5]),  //
+  //          reinterpret_cast<size_t>(&bounds[6]),  //
+  //          reinterpret_cast<size_t>(&bounds[7])},
+  //         circumsphere(bounds[1], bounds[5], bounds[6], bounds[7])},
+  //     std::pair<tetrahedron, sphere>{
+  //         {reinterpret_cast<size_t>(&bounds[3]),  //
+  //          reinterpret_cast<size_t>(&bounds[4]),  //
+  //          reinterpret_cast<size_t>(&bounds[5]),  //
+  //          reinterpret_cast<size_t>(&bounds[7])},
+  //         circumsphere(bounds[3], bounds[4], bounds[5], bounds[7])},
+  // };
 
   std::unordered_map<face, int, face::hash> polytope{};
 
