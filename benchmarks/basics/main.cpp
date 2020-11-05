@@ -3,23 +3,24 @@
 //
 #include <perfevent/perfevent.hpp>
 //
-#include <lyrahgames/delaunay/delaunay.hpp>
+// #include <lyrahgames/delaunay/delaunay.hpp>
+#include <lyrahgames/delaunay/bowyer_watson.hpp>
 
 using namespace std;
 using namespace lyrahgames;
-using delaunay::point;
-using delaunay::simplex;
+using delaunay::bowyer_watson::point;
+using delaunay::bowyer_watson::triangle;
 
 struct benchmark {
   benchmark& run(size_t n) noexcept {
     points.resize(n);
     for (auto& p : points) p = point{dist(rng), dist(rng)};
-    elements.clear();
+    triangles.clear();
     {
-      params.setParam("name", " stable");
+      params.setParam("          name", "default");
       params.setParam("points", n);
       PerfEventBlock e(n, params, header);
-      elements = delaunay::triangulation(points);
+      triangles = delaunay::bowyer_watson::triangulation(points);
     }
     header = false;
     return *this;
@@ -28,12 +29,12 @@ struct benchmark {
   benchmark& run_experimental(size_t n) noexcept {
     points.resize(n);
     for (auto& p : points) p = point{dist(rng), dist(rng)};
-    elements.clear();
+    triangles.clear();
     {
-      params.setParam("name", "nightly");
+      params.setParam("          name", "experimental");
       params.setParam("points", n);
       PerfEventBlock e(n, params, header);
-      elements = delaunay::experimental::triangulation(points);
+      triangles = delaunay::bowyer_watson::experimental::triangulation(points);
     }
     header = false;
     return *this;
@@ -55,7 +56,7 @@ struct benchmark {
   mt19937 rng{random_device{}()};
   uniform_real_distribution<float> dist{0, 1};
   vector<point> points{};
-  vector<simplex> elements{};
+  vector<triangle> triangles{};
 };
 
 int main() {
@@ -68,9 +69,8 @@ int main() {
       .run_experimental(10000)
       .run(20000)
       .run_experimental(20000)
-      // .run(30000)
-      // .run_experimental(30000)
-      // .run_experimental(50000)
+      .run(100000)
+      .run_experimental(100000)
       //
       ;
 }
