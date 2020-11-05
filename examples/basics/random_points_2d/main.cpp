@@ -47,8 +47,8 @@ int main() {
          << flush;
   };
 
-  // constexpr size_t samples = 10000;
-  constexpr size_t samples = 100000;
+  constexpr size_t samples = 10000;
+  // constexpr size_t samples = 100000;
   generate_points_and_triangulate(samples);
 
   // Initialize viewport parameters.

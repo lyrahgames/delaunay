@@ -26,7 +26,7 @@ struct edge : public std::array<size_t, 2> {
 struct triangle : public std::array<size_t, 3> {
   using base_type = std::array<size_t, 3>;
   triangle(size_t a, size_t b, size_t c) : base_type{a, b, c} {
-    std::sort(begin(), end());
+    // std::sort(begin(), end());
   }
 };
 
@@ -117,14 +117,15 @@ std::vector<triangle> triangulation(std::vector<point>& points) {
        reinterpret_cast<size_t>(&bounds[1]),  //
        reinterpret_cast<size_t>(&bounds[2])},
   };
-  // triangles.reserve(points.size() + 3);
+  // We already know an upper bound of triangles that will be generated.
+  triangles.reserve(2 * points.size() + 3);
 
   // Precompute circumcircle intersection for super triangle.
   std::vector<std::array<float, 3>> cache{circumcircle_intersection_cache(
       *reinterpret_cast<const point*>(triangles[0][0]),
       *reinterpret_cast<const point*>(triangles[0][1]),
       *reinterpret_cast<const point*>(triangles[0][2]))};
-  // cache.reserve(points.size() + 3);
+  cache.reserve(2 * points.size() + 3);
 
   // Initialize structures for the intersection polygon.
   std::map<edge, int> polygon{};
