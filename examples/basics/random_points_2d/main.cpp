@@ -7,13 +7,16 @@
 //
 #include <SFML/Graphics.hpp>
 //
+#include <lyrahgames/delaunay/bowyer_watson.hpp>
 #include <lyrahgames/delaunay/delaunay.hpp>
 
 int main() {
   using namespace std;
   using namespace lyrahgames;
-  using delaunay::point;
-  using delaunay::simplex;
+  // using delaunay::point;
+  // using delaunay::simplex;
+  using delaunay::bowyer_watson::point;
+  using delaunay::bowyer_watson::triangle;
 
   cout << "Press space to regenerate points and triangulation.\n\n" << flush;
 
@@ -24,7 +27,8 @@ int main() {
 
   // Initialize containers for points and elements.
   vector<point> points{};
-  vector<simplex> elements{};
+  // vector<simplex> elements{};
+  vector<triangle> elements{};
 
   const auto generate_points_and_triangulate = [&](size_t n) {
     // Generate random points.
@@ -33,7 +37,8 @@ int main() {
 
     // Construct Delaunay triangulation and measure time taken.
     const auto start = chrono::high_resolution_clock::now();
-    elements = delaunay::triangulation(points);
+    // elements = delaunay::triangulation(points);
+    elements = delaunay::bowyer_watson::triangulation(points);
     const auto end = chrono::high_resolution_clock::now();
     const auto time = chrono::duration<float>(end - start).count();
     cout << "Delaunay triangulation took " << time << " s for " << n
@@ -41,7 +46,7 @@ int main() {
          << flush;
   };
 
-  constexpr size_t samples = 1000;
+  constexpr size_t samples = 10000;
   generate_points_and_triangulate(samples);
 
   // Initialize viewport parameters.
@@ -65,7 +70,8 @@ int main() {
   int update = 2;
 
   // Define drawing routines.
-  const auto draw_triangle = [&](const simplex& t) {
+  // const auto draw_triangle = [&](const simplex& t) {
+  const auto draw_triangle = [&](const triangle& t) {
     array<sf::Vertex, 4> vertices;
     vertices[0] = sf::Vertex(projection(points[t[0]].x, points[t[0]].y),
                              sf::Color::Black);

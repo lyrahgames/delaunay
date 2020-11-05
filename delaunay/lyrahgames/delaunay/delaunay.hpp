@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <array>
+#include <map>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
@@ -158,7 +159,8 @@ std::vector<simplex> triangulation(std::vector<Point>& points) {
        reinterpret_cast<size_t>(&bounds[3]),  //
        reinterpret_cast<size_t>(&bounds[0])}};
 
-  std::unordered_map<facet, int, facet::hash> polytope{};
+  // std::unordered_map<facet, int, facet::hash> polytope{};
+  std::map<facet, int> polytope{};
 
   // Incrementally insert every point.
   for (const auto& p : points) {
@@ -252,6 +254,7 @@ std::vector<simplex> triangulation(std::vector<point>& points) {
           circumcircle(&bounds[2], &bounds[3], &bounds[0])}};
 
   std::unordered_map<facet, int, facet::hash> polytope{};
+  // std::map<facet, int> polytope{};
 
   // Incrementally insert every point.
   for (const auto& p : points) {
@@ -430,7 +433,8 @@ std::vector<tetrahedron> triangulation(const std::vector<point>& points) {
   // Construct regular super tetrahedron which contains all given points.
   const auto box = aabb(points);
   const auto bound_sphere = bounding_sphere(box);
-  const auto bounds = bounding_tetrahedron(bound_sphere);
+  const auto bounds =
+      bounding_tetrahedron({bound_sphere.c, 100 * bound_sphere.r2});
   std::unordered_map<tetrahedron, sphere, tetrahedron::hash> simplices{
       std::pair<tetrahedron, sphere>{
           {reinterpret_cast<size_t>(&bounds[0]),  //
