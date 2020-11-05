@@ -4,17 +4,26 @@
 //
 #include <doctest/doctest.h>
 //
+#include <glm/glm.hpp>
+//
+#include <glm/ext.hpp>
+//
+#include <Eigen/Dense>
+//
+#include <SFML/Graphics.hpp>
+//
 #include <lyrahgames/delaunay/vector.hpp>
 
 using doctest::Approx;
 using namespace lyrahgames;
 using delaunay::vector;
+using delaunay::vector_cast;
 using float32x2 = vector<float, 2>;
 using float64x2 = vector<double, 2>;
 using float32x3 = vector<float, 3>;
 using float64x3 = vector<double, 3>;
 
-TEST_CASE("") {
+TEST_CASE("Vector") {
   std::mt19937 rng{std::random_device{}()};
   std::uniform_real_distribution<float> dist{-1, 1};
   const auto random = [&] { return dist(rng); };
@@ -184,6 +193,39 @@ TEST_CASE("") {
 
     CHECK(v(0) == x);
     CHECK(v(1) == y);
+  }
+
+  SUBCASE("Initialization by GLM vectors.") {
+    const auto x = random();
+    const auto y = random();
+
+    glm::vec2 tmp{x, y};
+    const auto v = vector_cast<float32x2>(tmp);
+
+    CHECK(Approx(v[0]) == x);
+    CHECK(Approx(v[1]) == y);
+  }
+
+  SUBCASE("Initialization by Eigen vectors.") {
+    const auto x = random();
+    const auto y = random();
+
+    Eigen::Vector2f tmp{x, y};
+    const auto v = vector_cast<float32x2>(tmp);
+
+    CHECK(Approx(v[0]) == x);
+    CHECK(Approx(v[1]) == y);
+  }
+
+  SUBCASE("Initialization by SFML vectors.") {
+    const auto x = random();
+    const auto y = random();
+
+    sf::Vector2f tmp{x, y};
+    const auto v = vector_cast<float32x2>(tmp);
+
+    CHECK(Approx(v[0]) == x);
+    CHECK(Approx(v[1]) == y);
   }
 
   SUBCASE("Initialization and access for two-dimensional vectors.") {

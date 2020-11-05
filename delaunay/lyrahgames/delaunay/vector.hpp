@@ -1,6 +1,8 @@
 #pragma once
 #include <cassert>
 #include <cmath>
+//
+#include <lyrahgames/delaunay/type_traits.hpp>
 
 namespace lyrahgames::delaunay {
 
@@ -44,6 +46,11 @@ constexpr auto elementwise(const vector<Real, N>& x, const vector<Real, N>& y,
   vector<decltype(f(x[0], y[0])), N> result{};
   for (size_t i = 0; i < N; ++i) result[i] = f(x[i], y[i]);
   return result;
+}
+
+template <typename Real, size_t N, typename Functor>
+constexpr void apply_elementwise(vector<Real, N>& x, Functor f) noexcept {
+  for (size_t i = 0; i < N; ++i) x[i] = f(x[i]);
 }
 
 template <typename Real, size_t N, typename Functor, typename RFunctor>
@@ -127,15 +134,51 @@ constexpr auto norm(const vector<Real, N>& x) noexcept {
 }
 
 template <typename Real, size_t N>
-constexpr vector<Real, N> min(const vector<Real, N>& x,
-                              const vector<Real, N>& y) noexcept {
+constexpr auto min(const vector<Real, N>& x,
+                   const vector<Real, N>& y) noexcept {
   return elementwise(x, y, [](auto x, auto y) { return (x < y) ? x : y; });
 }
 
 template <typename Real, size_t N>
-constexpr vector<Real, N> max(const vector<Real, N>& x,
-                              const vector<Real, N>& y) noexcept {
+constexpr auto max(const vector<Real, N>& x,
+                   const vector<Real, N>& y) noexcept {
   return elementwise(x, y, [](auto x, auto y) { return (x > y) ? x : y; });
+}
+
+constexpr auto has_public_xy = is_valid([](auto&& v) -> decltype(v.x * v.y) {});
+constexpr auto has_public_xyz =
+    is_valid([](auto&& v) -> decltype(v.x * v.y * v.z) {});
+constexpr auto has_function_xy =
+    is_valid([](auto&& v) -> decltype(v.x() * v.y()) {});
+constexpr auto has_function_xyz =
+    is_valid([](auto&& v) -> decltype(v.x() * v.y() * v.z()) {});
+constexpr auto has_accesss_operator =
+    is_valid([](auto&& v) -> decltype(v[0] * v[1]) {});
+
+template <typename Vector, typename T>
+constexpr auto vector_cast(T&& t) noexcept
+    -> std::enable_if_t<decltype(has_accesss_operator(t))::value, Vector> {
+  Vector result{};
+  for (size_t i = 0; i < Vector::size(); ++i) result[i] = t[i];
+  return result;
+}
+
+template <typename Vector, typename T>
+constexpr auto vector_cast(T&& t) noexcept
+    -> std::enable_if_t<!decltype(has_accesss_operator(t))::value &&
+                            (Vector::size() == 2) &&
+                            decltype(has_public_xy(t))::value,
+                        Vector> {
+  return {t.x, t.y};
+}
+
+template <typename Vector, typename T>
+constexpr auto vector_cast(T&& t) noexcept
+    -> std::enable_if_t<!decltype(has_accesss_operator(t))::value &&
+                            (Vector::size() == 3) &&
+                            decltype(has_public_xyz(t))::value,
+                        Vector> {
+  return {t.x, t.y, t.z};
 }
 
 }  // namespace lyrahgames::delaunay
