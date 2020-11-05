@@ -38,7 +38,8 @@ int main() {
     // Construct Delaunay triangulation and measure time taken.
     const auto start = chrono::high_resolution_clock::now();
     // elements = delaunay::triangulation(points);
-    elements = delaunay::bowyer_watson::triangulation(points);
+    // elements = delaunay::bowyer_watson::triangulation(points);
+    elements = delaunay::bowyer_watson::experimental::triangulation(points);
     const auto end = chrono::high_resolution_clock::now();
     const auto time = chrono::duration<float>(end - start).count();
     cout << "Delaunay triangulation took " << time << " s for " << n
@@ -46,8 +47,8 @@ int main() {
          << flush;
   };
 
-  constexpr size_t samples = 10000;
-  // constexpr size_t samples = 100000;
+  // constexpr size_t samples = 10000;
+  constexpr size_t samples = 100000;
   generate_points_and_triangulate(samples);
 
   // Initialize viewport parameters.
