@@ -3,69 +3,22 @@
 #include <array>
 #include <iostream>
 #include <map>
+#include <unordered_map>
 #include <vector>
+//
+#include <lyrahgames/delaunay/geometry.hpp>
 
 namespace lyrahgames::delaunay::bowyer_watson {
 
-struct point {
-  float x, y;
-};
-
-constexpr point operator+(point x, point y) noexcept {
-  return {x.x + y.x, x.y + y.y};
-}
-
-constexpr point operator-(point x, point y) noexcept {
-  return {x.x - y.x, x.y - y.y};
-}
-
-constexpr point operator*(float x, point v) noexcept {
-  return {x * v.x, x * v.y};
-}
-
-constexpr auto dot(point x, point y) noexcept { return x.x * y.x + x.y * y.y; }
-
-constexpr auto sqnorm(point x) noexcept { return dot(x, x); }
-
-constexpr auto crossdot(point x, point y) noexcept {
-  return x.x * y.y - x.y * y.x;
-}
-
-constexpr auto circumcircle_intersection(const point& a,  //
-                                         const point& b,  //
-                                         const point& c,  //
-                                         const point& p) noexcept {
-  const auto axdx = a.x - p.x;
-  const auto aydy = a.y - p.y;
-  const auto bxdx = b.x - p.x;
-  const auto bydy = b.y - p.y;
-  const auto cxdx = c.x - p.x;
-  const auto cydy = c.y - p.y;
-  const auto sqsum_a = axdx * axdx + aydy * aydy;
-  const auto sqsum_b = bxdx * bxdx + bydy * bydy;
-  const auto sqsum_c = cxdx * cxdx + cydy * cydy;
-  const auto det = axdx * (bydy * sqsum_c - cydy * sqsum_b) -
-                   aydy * (bxdx * sqsum_c - cxdx * sqsum_b) +
-                   sqsum_a * (bxdx * cydy - cxdx * bydy);
-  const point edge1{b.x - a.x, b.y - a.y};
-  const point edge2{c.x - a.x, c.y - a.y};
-  const auto d = (edge1.x * edge2.y - edge1.y * edge2.x);
-  return (d * det) > 0.0f;
-};
-
-// constexpr auto circumcircle_intersection_cache(const point& a, const point&
-// b,
-//                                                const point& c) noexcept {
-//   const auto u = b - a;
-//   const auto v = c - a;
-//   const auto u2 = sqnorm(u);
-//   const auto v2 = sqnorm(v);
-//   const result[3] = {u.y * v2 - v.y * u2, v.x * u2 - u.x * v2,
-//                      u.x * v.y - u.y * v.x};
-// }
+using point = float32x2;
 
 struct edge : public std::array<size_t, 2> {
   using base_type = std::array<size_t, 2>;
+  struct hash {
+    constexpr size_t operator()(const edge& e) const noexcept {
+      return e[0] ^ (e[1] << 3);
+    }
+  };
   edge(size_t a, size_t b) : base_type{std::min(a, b), std::max(a, b)} {}
 };
 
@@ -91,6 +44,7 @@ std::vector<triangle> triangulation(std::vector<point>& points) {
                                    reinterpret_cast<size_t>(&bounds[3]),  //
                                    reinterpret_cast<size_t>(&bounds[0])}};
 
+  // std::unordered_map<edge, int, edge::hash> polygon{};
   std::map<edge, int> polygon{};
   std::vector<size_t> bad_triangles{};
 

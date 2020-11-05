@@ -181,4 +181,9 @@ constexpr auto vector_cast(T&& t) noexcept
   return {t.x, t.y, t.z};
 }
 
+using float32x2 = vector<float, 2>;
+using float64x2 = vector<double, 2>;
+using float32x3 = vector<float, 3>;
+using float64x3 = vector<double, 3>;
+
 }  // namespace lyrahgames::delaunay

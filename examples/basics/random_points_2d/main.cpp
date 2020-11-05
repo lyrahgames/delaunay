@@ -8,7 +8,7 @@
 #include <SFML/Graphics.hpp>
 //
 #include <lyrahgames/delaunay/bowyer_watson.hpp>
-#include <lyrahgames/delaunay/delaunay.hpp>
+// #include <lyrahgames/delaunay/delaunay.hpp>
 
 int main() {
   using namespace std;
@@ -47,6 +47,7 @@ int main() {
   };
 
   constexpr size_t samples = 10000;
+  // constexpr size_t samples = 100000;
   generate_points_and_triangulate(samples);
 
   // Initialize viewport parameters.
@@ -73,13 +74,13 @@ int main() {
   // const auto draw_triangle = [&](const simplex& t) {
   const auto draw_triangle = [&](const triangle& t) {
     array<sf::Vertex, 4> vertices;
-    vertices[0] = sf::Vertex(projection(points[t[0]].x, points[t[0]].y),
+    vertices[0] = sf::Vertex(projection(points[t[0]][0], points[t[0]][1]),
                              sf::Color::Black);
-    vertices[1] = sf::Vertex(projection(points[t[1]].x, points[t[1]].y),
+    vertices[1] = sf::Vertex(projection(points[t[1]][0], points[t[1]][1]),
                              sf::Color::Black);
-    vertices[2] = sf::Vertex(projection(points[t[2]].x, points[t[2]].y),
+    vertices[2] = sf::Vertex(projection(points[t[2]][0], points[t[2]][1]),
                              sf::Color::Black);
-    vertices[3] = sf::Vertex(projection(points[t[0]].x, points[t[0]].y),
+    vertices[3] = sf::Vertex(projection(points[t[0]][0], points[t[0]][1]),
                              sf::Color::Black);
     window.draw(vertices.data(), vertices.size(), sf::LineStrip);
   };
@@ -89,7 +90,7 @@ int main() {
     sf::CircleShape shape(radius);
     shape.setFillColor(sf::Color::Black);
     shape.setOrigin(radius, radius);
-    shape.setPosition(projection(p.x, p.y));
+    shape.setPosition(projection(p[0], p[1]));
     window.draw(shape);
   };
 
