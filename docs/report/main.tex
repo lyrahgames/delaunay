@@ -1,0 +1,161 @@
+\documentclass[10pt, twoside, fleqn]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{times}
+\linespread{1.15}
+
+\usepackage[a4paper, left=45mm, right=35mm, top=40mm, bottom=35mm]{geometry}
+
+\usepackage[english]{babel}
+
+\usepackage{emptypage}
+\usepackage{multicol}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\fancypagestyle{sectionstyle}{
+  \fancyhf{}
+  % \fancyfoot[C]{\footnotesize\bigskip\thepage/\pageref{LastPage}}
+  % \fancyfoot{}
+  \fancyfoot[C]{\footnotesize\bigskip\thepage}
+  \renewcommand{\footrulewidth}{0.5pt}
+  \renewcommand{\headrulewidth}{0pt}
+}
+\fancypagestyle{mainstyle}{
+  \fancyhf{}
+  \fancyfoot[C]{\footnotesize\bigskip\thepage}
+  % \fancyhead[LO,RE]{\footnotesize \thetitle} %left
+  % \fancyhead[RO,LE]{\footnotesize \theauthor} %right
+  % \fancyhead[LO,RE]{\footnotesize \ \smallskip}
+  \fancyhead[RO]{\footnotesize \rightmark \smallskip} %right
+  \fancyhead[LE]{\footnotesize \leftmark \smallskip} %right
+  \renewcommand{\headrulewidth}{0.5pt}
+  \renewcommand{\footrulewidth}{0.5pt}
+}
+\pagestyle{mainstyle}
+
+% Figures, Graphics, and Colors
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[hang,footnotesize]{caption}
+\usepackage[font=footnotesize]{subcaption}
+\usepackage[dvipsnames]{xcolor}
+
+% Mathematics
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\allowdisplaybreaks
+\usepackage{dsfont}
+\usepackage{euscript}
+\usepackage{exscale}
+
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{tcolorbox}
+
+% References, Quotes, Labels
+\usepackage[autostyle,german=guillemets,english=american]{csquotes}
+\usepackage[backend=bibtex,style=authoryear-comp,dateabbrev=false]{biblatex}
+\usepackage{tocbibind}
+\usepackage{url}
+\urlstyle{same}
+\usepackage[pdfusetitle]{hyperref}
+\hypersetup{
+  colorlinks,
+  linkcolor={blue!70!black},
+  citecolor={blue!70!black},
+  urlcolor={blue!70!black}
+}
+
+% Custom
+\let\oldsection\section
+\renewcommand*\section{%
+  \cleardoublepage
+  \thispagestyle{sectionstyle}\oldsection}
+\let\oldpagenumbering\pagenumbering
+\renewcommand*\pagenumbering[1]{%
+  \cleardoublepage
+  \oldpagenumbering{#1}}
+
+% Content
+\title{Delaunay Triangulation}
+\author{Markus Pawellek}
+\date{\today}
+\bibliography{references}
+\hypersetup{
+  % pdftex,
+  % pdfauthor={Markus Pawellek},
+  % pdftitle={The Title},
+  pdfsubject={Delaunay Triangulation},
+  pdfkeywords={delaunay, triangulation, tessellation, subdivision, voronoi, n-dimensional},
+  % pdfproducer={Latex with hyperref},
+  % pdfcreator={pdflatex, or other tool}
+}
+
+\begin{document}
+  \maketitle
+  \thispagestyle{empty}
+
+  \bigskip
+  \hrule
+  \medskip
+  \begin{abstract}
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+    proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  \end{abstract}
+  \medskip
+  \hrule
+  \bigskip
+
+  \pagenumbering{roman}
+  \tableofcontents
+
+  \pagenumbering{arabic}
+  \section{Introduction}
+  \section{Background}
+    \subsection{Graph Theory}
+    \subsection{Geometry}
+      \subsubsection{Circumcircles and Circumspheres}
+    \subsection{Delaunay Triangulation and Tessellation}
+      Triangulation, Tessellation, Simplicialization, Subdivision, Mesh Generation
+      Two and Three Dimensions
+  \section{Algorithms and Data Structures}
+    \subsection{Hash Map}
+    \subsection{Triangle Mesh}
+    \subsection{Quad-Edge Data Structure}
+    \subsection{Radix Sort}
+    \subsection{Linear Morton Sort}
+    \subsection{Linear Floating-Point Quad-Tree}
+    \subsection{Bowyer-Watson Algorithm}
+    \subsection{Guibas-Stolfi Incremental Algorithm}
+    \subsection{Guibas-Stolfi Divide-and-Conquer Algorithm}
+    \subsection{Dwyer Algorithm}
+  \section{Design and Implementation}
+    \subsection{API}
+    \subsection{Robustness}
+    \subsection{Incremental Algorithm}
+    \subsection{Divide-and-Conquer Algorithm}
+    \subsection{Multidimensional Tessellation}
+  \section{Tests and Testscenes}
+    \subsection{Uniform Rectangular Distribution}
+    \subsection{Gaussian Distribution}
+    \subsection{Robustness Tests}
+  \section{Benchmarks}
+  \section{Examples}
+    \subsection{Image Mosaic and Tessellation}
+    \subsection{Fluids for Ray Tracing}
+    \subsection{Finite Element Method}
+    \subsection{Pareto Frontiers}
+  \section{Results}
+  \section{Conclusions}
+
+  \nocite{*}
+  \printbibliography[heading=bibintoc]
+\end{document}

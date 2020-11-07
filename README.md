@@ -3,6 +3,7 @@
 A simple implementation of the Bowyer-Watson algorithm to construct the Delaunay triangulation of a given set of points.
 It was put into an easy-to-use C++ header-only library currently based on the [build2](https://build2.org/) build system.
 
+[Read the report.](docs/report/main.pdf)
 
 ![](https://img.shields.io/github/languages/top/lyrahgames/delaunay.svg?style=for-the-badge)
 ![](https://img.shields.io/github/languages/code-size/lyrahgames/delaunay.svg?style=for-the-badge)
@@ -171,8 +172,8 @@ int main() {
 - [Lischinski, *Incremental Delaunay Triangulation*, 1993](http://www.karlchenofhell.org/cppswp/lischinski.pdf)
 - [Burnikel, *Delaunay Graphs by Divide and Conquer*, 1998](https://pure.mpg.de/rest/items/item_1819432_4/component/file_2599484/content)
 - [Katajainen and Koppinen, *Constructing Delaunay Triangulations by Merging Buckets in Quadtree Order*, 1988](http://hjemmesider.diku.dk/~jyrki/Paper/KK88.pdf)
-- [Watson, *Computing the N-Dimensional Delaunay Tessellation with Application to Voronoi Polytopes*, 1981](https://watermark.silverchair.com/240167.pdf?token=AQECAHi208BE49Ooan9kkhW_Ercy7Dm3ZL_9Cf3qfKAc485ysgAAAqYwggKiBgkqhkiG9w0BBwagggKTMIICjwIBADCCAogGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMisD7nnrkJ2ySpDQ7AgEQgIICWfbh2MdeqM8eodZwMasPbS6dUMh3A1RxLnzBk2iWmphFgoLOj2unb4zXMsU46h7y2jgpEpmFQ_ijo7hdMNaqVMWnSPEzMjbIZA8eMxYFBH7BgkQfboM1BDximsYPY8N7LrBuKbEqNDQxxEtqKMk__h8nAMfUiYUCC94CL9RJzRzHchBp1Cb6YZfDXgHh9MvrHv_FmCH09fQldoMPn0B7sYz92ubK02AQ5Be-UGqkBC302Okna1lnrviMg01334Eotnn1nfwAc_8xNdpCCRkseF3V1ucmUloHtYQV6NrB-UzwoHZuVmZ4qwnw5ucC_nxYk8kC9XZ3_AiYri5uEw5VnZDsowUDPDQud-ReSPCRq0zCWUr60ulMaCutMRr9aMxNYQ3ZvsO7EAdOxIXI6P3ElWSx55z1eu-GCX9uchIY4Lf1xaeLNqpNqooWtte6U58u4c_HA85Ges-nwPkLmBwQn5Knj7P5dEJs2974Y9tZP_6jhiX1WxObN_ZS6ibui5I4vA2YfOcto4mrQgAE8tPTIjeJgzNETMw0zL7bonltX6fjS_nbLpmK_DdCMd4OYuw3bkZbU29h9bEQOb72UrTduSn_zZLVXdA21Z-FbGaPpPyt1vgb3fR2upms0lgvgqz6BLPmr4dpeX_dAxw5H2K9w21yKFCd6Q0DW2mX20TY25ZA2MCFJxU3yzLjJzdH2DLaApzPux8hqNNXP4J0KyQb75ihIIrCMmP4ICG4ZJWZ8IZ1hy6UV6lSMxoYRGcwZqjKq5tJiFCKkAR1qiTRZbR7E-ocMvKE_OzkHR8)
-- [Bowyer, *Computing Dirichlet Tessellations*, 1981](https://watermark.silverchair.com/240162.pdf?token=AQECAHi208BE49Ooan9kkhW_Ercy7Dm3ZL_9Cf3qfKAc485ysgAAAqYwggKiBgkqhkiG9w0BBwagggKTMIICjwIBADCCAogGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMID4hIrOUlhKhkWElAgEQgIICWZdoaI-U37S323EjksrDtfHAcuyUQO25rGZOFqhKi3fALzBeh-nqehbwGg_tWFQHrTjJTqRv6xrfSD4yN4SeTZAnUBq0K-v5IGIZo-evW6SKNtGESRB24HfbClLMRJDV868gT5Ri5LZ02FDPR6rJ4SZHIhcZiMP2POx8XmCUCoLx8IfZ4_9MXssLZqbaXu1BnMQrrLXIPb_TynBo-BkIhaxkkfaUpIDUA1KZrDiBIr1Cb5ZhYLDwH4QkJxE96_FhMK9ldoVQDL_psAAgE2bGmPTK_Vf8BLTawOnwxKvEdG7nZAg2V5SWt_3J7daIK5vAIxpfLRJSsAy-q5749U1yw2kofWro9DE_zt_rXeJnKEcB55alX2y7WnbAThF7roq4h0XjNCFccEAzEwJHr3N1VXnQvoOGIAvOlblnVYNQkPtjIgzjlCss00r8jn4XQQyj9yKbrF0HtbVsnmovZrRJpvR2HkTotsA6vtZcqWsQaPvP-74WDy4TVLITpKAx-G2_ne8Xb4VsjHqjFa3cBT_YUdJz2vq1PxEt56H8BfBZyd1tyswe0c9rrgX-W7RsOOt_gExNrZrXjvoV3PW7FgIv3Vnvxxa4rJDFC95pOXeABeeEL1Ic6akXlVoOZE5iyoUIfTfv32X-TMOTVBLlB-CSK-OTA72bJz67RIaj2EkdSi4j21_xEBNP0KclycQF-xz_Ly9QDzDYAEFDvUmzZvTOgjRKQPWLnuPG-M-a8rxXTOpgEZ1G7J1qPiyz9yftt6Cz51qadldqw4P4mIMh-fGmcN-LMHbP0OoxtoE)
+- [Watson, *Computing the N-Dimensional Delaunay Tessellation with Application to Voronoi Polytopes*, 1981](https://academic.oup.com/comjnl/article/24/2/167/338200)
+- [Bowyer, *Computing Dirichlet Tessellations*, 1981](https://academic.oup.com/comjnl/article/24/2/162/338193)
 
 - [CP-Algorithms, *Delaunay Triangulation and Voronoi Diagram*, 2014](https://cp-algorithms.com/geometry/delaunay.html)
 - [*Quad Edge Data Structure*](https://www.neolithicsphere.com/geodesica/doc/quad_edge_overview.htm)
