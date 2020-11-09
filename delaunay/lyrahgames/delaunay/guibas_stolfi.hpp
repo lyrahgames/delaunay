@@ -94,4 +94,156 @@ struct subdivision {
   }
 };
 
+struct edge_algebra {
+  struct alignas(2 * sizeof(void*)) edge {
+    edge* next{};
+    void* data{};
+  };
+
+  struct alignas(4 * sizeof(edge)) quad_edge {
+    edge& operator[](int index) { return data[index]; }
+    const edge& operator[](int index) const { return data[index]; }
+    edge data[4]{};
+  };
+
+  static_assert(sizeof(edge) == 2 * sizeof(void*));
+  static_assert(alignof(edge) == sizeof(edge));
+  static_assert(sizeof(quad_edge) == 4 * sizeof(edge));
+  static_assert(alignof(quad_edge) == sizeof(quad_edge));
+
+  // byte index in quad_edge structure
+  static constexpr uintptr_t type_mask = 4 * sizeof(edge) - 1;
+  // quad_edge memory position
+  static constexpr uintptr_t base_mask = ~type_mask;
+
+  struct traversor {
+    edge* pointer{};
+    auto operator*() noexcept;
+  };
+
+  auto new_edge() noexcept;
+  auto new_edge(size_t index) noexcept;
+  void splice(edge* a, edge* b) noexcept;
+  void connect(edge* a, edge* b) noexcept;
+  void remove(edge* e) noexcept;
+  void swap(edge* e) noexcept;
+  // auto locate(x) noexcept;
+
+  std::vector<quad_edge> edges;
+};
+
+inline auto rotation(edge_algebra::edge* e, intptr_t n = 1) noexcept {
+  const auto x = reinterpret_cast<uintptr_t>(e);
+  const auto y = reinterpret_cast<uintptr_t>(e + n);
+  return reinterpret_cast<edge_algebra::edge*>((x & edge_algebra::base_mask) |
+                                               (y & edge_algebra::type_mask));
+}
+inline auto symmetric(edge_algebra::edge* e) noexcept { return rotation(e, 2); }
+inline auto next(edge_algebra::edge* e) noexcept { return e->next; }
+inline auto previous(edge_algebra::edge* e) noexcept {
+  return rotation(next(rotation(e)));
+}
+inline auto& origin(edge_algebra::edge* e) noexcept { return e->data; }
+inline auto& destination(edge_algebra::edge* e) noexcept {
+  return origin(symmetric(e));
+}
+inline auto& left(edge_algebra::edge* e) noexcept {
+  return origin(rotation(e, -1));
+}
+inline auto& right(edge_algebra::edge* e) noexcept {
+  return origin(rotation(e, 1));
+}
+
+inline auto operator+(edge_algebra::traversor t) noexcept {
+  return edge_algebra::traversor{rotation(t.pointer, 1)};
+}
+inline auto operator-(edge_algebra::traversor t) noexcept {
+  return edge_algebra::traversor{rotation(t.pointer, -1)};
+}
+inline auto operator~(edge_algebra::traversor t) noexcept {
+  return edge_algebra::traversor{symmetric(t.pointer)};
+}
+inline auto operator++(edge_algebra::traversor t) noexcept {
+  return edge_algebra::traversor{next(t.pointer)};
+}
+inline auto operator--(edge_algebra::traversor t) noexcept {
+  return edge_algebra::traversor{previous(t.pointer)};
+}
+inline auto operator++(edge_algebra::traversor t, int) noexcept {
+  return ++(~t);
+}
+inline auto operator--(edge_algebra::traversor t, int) noexcept {
+  return +(++(-t));
+}
+inline auto edge_algebra::traversor::operator*() noexcept {
+  return origin(pointer);
+}
+
+auto edge_algebra::new_edge(size_t index) noexcept {
+  auto& e = edges[index];
+  e[0].next = &e[0];
+  e[1].next = &e[3];
+  e[2].next = &e[2];
+  e[3].next = &e[1];
+  return &e[0];
+}
+
+auto edge_algebra::new_edge() noexcept {
+  // Assume there is no reallocation of the edges vector.
+  const auto index = edges.size();
+  edges.push_back({});
+  return new_edge(index);
+}
+
+void edge_algebra::splice(edge* a, edge* b) noexcept {
+  auto alpha = rotation(next(a));
+  auto beta = rotation(next(b));
+  auto t1 = next(b);
+  auto t2 = next(a);
+  auto t3 = next(beta);
+  auto t4 = next(alpha);
+  a->next = t1;
+  b->next = t2;
+  alpha->next = t3;
+  beta->next = t4;
+}
+
+void edge_algebra::connect(edge* a, edge* b) noexcept {
+  auto e = new_edge();
+  origin(e) = destination(a);
+  destination(e) = origin(b);
+  splice(e, rotation(next(rotation(a, -1))));
+  splice(symmetric(e), b);
+}
+
+void edge_algebra::remove(edge* e) noexcept {
+  splice(e, previous(e));
+  splice(symmetric(e), previous(symmetric(e)));
+}
+
+void edge_algebra::swap(edge* e) noexcept {
+  auto a = previous(e);
+  auto b = previous(symmetric(e));
+  splice(e, a);
+  splice(symmetric(e), b);
+  splice(e, rotation(next(rotation(a, -1))));
+  splice(e, rotation(next(rotation(b, -1))));
+  origin(e) = destination(a);
+  destination(e) = destination(b);
+}
+
+// auto edge_algebra::locate() noexcept {
+//   auto e = &edges[0][0];
+//   while (true) {
+//     if (right_of(x, e))
+//       e = symmetric(e);
+//     else if (!right_of(x, next(e)))
+//       e = next(e);
+//     else if (!right_of(x, next(e)))
+//       e = rotation(next(rotation(e, -1)), -1);
+//     else
+//       e;
+//   }
+// }
+
 }  // namespace lyrahgames::delaunay::guibas_stolfi
