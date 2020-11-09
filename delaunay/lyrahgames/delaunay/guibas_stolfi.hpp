@@ -60,19 +60,19 @@ inline auto& operator~(edge& e) noexcept { return symmetric(e); }
 inline auto& operator++(edge& e) noexcept { return next(e); }
 inline auto& operator--(edge& e) noexcept { return prev(e); }
 
-class subdivision {
+struct subdivision {
   std::vector<quad_edge> edges;
 
-  void make_edge(size_t index, const point& o, const point& d) {
+  void make_edge(size_t index, point* o, point* d) {
     auto& e = edges[index];
     e[0].next = reinterpret_cast<uintptr_t>(&e[0]);
-    e[0].data = reinterpret_cast<uintptr_t>(&o);
+    e[0].data = reinterpret_cast<uintptr_t>(o);
 
     e[1].next = reinterpret_cast<uintptr_t>(&e[3]);
     e[1].data = 0;  // Null Face
 
     e[2].next = reinterpret_cast<uintptr_t>(&e[2]);
-    e[2].data = reinterpret_cast<uintptr_t>(&d);
+    e[2].data = reinterpret_cast<uintptr_t>(d);
 
     e[3].next = reinterpret_cast<uintptr_t>(&e[1]);
     e[3].data = 0;  // Null Face
