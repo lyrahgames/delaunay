@@ -8,6 +8,20 @@
 
 namespace lyrahgames::delaunay {
 
+constexpr auto counterclockwise(const float32x2& a, const float32x2& b,
+                                const float32x2& c) noexcept {
+  const auto u = b - a;
+  const auto v = c - a;
+  return (u[0] * v[1] - u[1] * v[0]) > 0;
+}
+
+constexpr auto clockwise(const float32x2& a, const float32x2& b,
+                         const float32x2& c) noexcept {
+  const auto u = b - a;
+  const auto v = c - a;
+  return (u[0] * v[1] - u[1] * v[0]) < 0;
+}
+
 constexpr auto circumcircle_intersection(const float32x2& a,  //
                                          const float32x2& b,  //
                                          const float32x2& c,  //

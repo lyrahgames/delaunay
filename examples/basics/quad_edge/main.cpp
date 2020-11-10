@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <array>
 #include <chrono>
 #include <iomanip>
@@ -12,6 +13,7 @@
 int main() {
   using namespace std;
   using namespace lyrahgames;
+  using delaunay::guibas_stolfi::edge_algebra;
   using delaunay::guibas_stolfi::point;
   using delaunay::guibas_stolfi::quad_edge;
   using delaunay::guibas_stolfi::subdivision;
@@ -26,81 +28,44 @@ int main() {
   // Initialize containers for points and elements.
   vector<point> points{};
   subdivision edges{};
+  edge_algebra delaunay_diagram{};
 
   const auto generate_points_and_triangulate = [&](size_t n) {
     // Generate random points.
     points.resize(n);
     for (auto& p : points) p = point{random(), random()};
+    points[0][0] = -10;
+    points[0][1] = -10;
+    points[1][0] = 10;
+    points[1][1] = -10;
+    points[2][0] = 0;
+    points[2][1] = 20;
+
+    // sort(&points[3], &points[n], [](auto x, auto y) {
+    //   return (x[0] < y[0]) || ((x[0] == y[0]) && (x[1] < y[1]));
+    // });
+    // cout << "Sorted...done\n" << flush;
 
     // Construct Delaunay triangulation and measure time taken.
     const auto start = chrono::high_resolution_clock::now();
 
-    // edges.edges.resize(3);
-    // edges.edges[0][0].next =
-    // reinterpret_cast<uintptr_t>(&(edges.edges[2][2])); edges.edges[0][0].data
-    // = reinterpret_cast<uintptr_t>(&points[0]);
-
-    // edges.edges[0][1].next =
-    // reinterpret_cast<uintptr_t>(&(edges.edges[2][1])); edges.edges[0][1].data
-    // = 0;
-
-    // edges.edges[0][2].next =
-    // reinterpret_cast<uintptr_t>(&(edges.edges[1][0])); edges.edges[0][2].data
-    // = reinterpret_cast<uintptr_t>(&points[1]);
-
-    // edges.edges[0][3].next =
-    // reinterpret_cast<uintptr_t>(&(edges.edges[1][3])); edges.edges[0][3].data
-    // = 0;
-
-    // edges.edges[1][0].next =
-    // reinterpret_cast<uintptr_t>(&(edges.edges[0][2])); edges.edges[1][0].data
-    // = reinterpret_cast<uintptr_t>(&points[1]);
-
-    // edges.edges[1][1].next =
-    // reinterpret_cast<uintptr_t>(&(edges.edges[0][1])); edges.edges[1][1].data
-    // = 0;
-
-    // edges.edges[1][2].next =
-    // reinterpret_cast<uintptr_t>(&(edges.edges[2][0])); edges.edges[1][2].data
-    // = reinterpret_cast<uintptr_t>(&points[2]);
-
-    // edges.edges[1][3].next =
-    // reinterpret_cast<uintptr_t>(&(edges.edges[2][3])); edges.edges[1][3].data
-    // = 0;
-
-    // edges.edges[2][0].next =
-    // reinterpret_cast<uintptr_t>(&(edges.edges[1][2])); edges.edges[2][0].data
-    // = reinterpret_cast<uintptr_t>(&points[2]);
-
-    // edges.edges[2][1].next =
-    // reinterpret_cast<uintptr_t>(&(edges.edges[1][1])); edges.edges[2][1].data
-    // = 0;
-
-    // edges.edges[2][2].next =
-    // reinterpret_cast<uintptr_t>(&(edges.edges[0][0])); edges.edges[2][2].data
-    // = reinterpret_cast<uintptr_t>(&points[0]);
-
-    // edges.edges[2][3].next =
-    // reinterpret_cast<uintptr_t>(&(edges.edges[0][3])); edges.edges[2][3].data
-    // = 0;
-
-    edges.edges.resize(3);
-    edges.make_edge(0, &points[0], &points[1]);
-    edges.make_edge(1, &points[1], &points[2]);
-    edges.splice(symmetric(edges.edges[0][0]), edges.edges[1][0]);
-    edges.make_edge(2, &points[2], &points[0]);
-    edges.splice(symmetric(edges.edges[1][0]), edges.edges[2][0]);
-    edges.splice(symmetric(edges.edges[2][0]), edges.edges[0][0]);
+    delaunay_diagram.edges.resize(0);
+    delaunay_diagram.edges.reserve(3 * n);
+    delaunay_diagram.set_super_triangle(&points[0], &points[1], &points[2]);
+    for (size_t i = 3; i < n; ++i) {
+      delaunay_diagram.add(&points[i]);
+    }
 
     const auto end = chrono::high_resolution_clock::now();
     const auto time = chrono::duration<float>(end - start).count();
     cout << "Delaunay triangulation took " << time << " s for " << n
          << " points.\n"
+         << "Edge Count = " << delaunay_diagram.edges.size() << '\n'
          << flush;
   };
 
-  constexpr size_t samples = 5;
-  // constexpr size_t samples = 100000;
+  constexpr size_t samples = 100000;
+  // constexpr size_t samples = 1000000;
   generate_points_and_triangulate(samples);
 
   // Initialize viewport parameters.
@@ -125,16 +90,14 @@ int main() {
 
   // Define drawing routines.
   // const auto draw_edge = [&](const simplex& t) {
-  const auto draw_edge = [&](const quad_edge& e) {
+  const auto draw_edge = [&](const auto& e) {
     array<sf::Vertex, 2> vertices;
-    vertices[0] =
-        sf::Vertex(projection((*reinterpret_cast<point*>(e[0].data))[0],
-                              (*reinterpret_cast<point*>(e[0].data))[1]),
-                   sf::Color::Black);
-    vertices[1] =
-        sf::Vertex(projection((*reinterpret_cast<point*>(e[2].data))[0],
-                              (*reinterpret_cast<point*>(e[2].data))[1]),
-                   sf::Color::Black);
+    vertices[0] = sf::Vertex(projection((*static_cast<point*>(e[0].data))[0],
+                                        (*static_cast<point*>(e[0].data))[1]),
+                             sf::Color::Black);
+    vertices[1] = sf::Vertex(projection((*static_cast<point*>(e[2].data))[0],
+                                        (*static_cast<point*>(e[2].data))[1]),
+                             sf::Color::Black);
     window.draw(vertices.data(), vertices.size(), sf::LineStrip);
   };
 
@@ -190,7 +153,7 @@ int main() {
       fov_x = fov_y * width / height;
       window.clear(sf::Color::White);
       // Render elements and points.
-      for (const auto& e : edges.edges) draw_edge(e);
+      for (const auto& e : delaunay_diagram.edges) draw_edge(e);
       for (const auto& p : points) draw_point(p);
       --update;
     }

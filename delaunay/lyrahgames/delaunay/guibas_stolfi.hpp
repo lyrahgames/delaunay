@@ -124,10 +124,14 @@ struct edge_algebra {
   auto new_edge() noexcept;
   auto new_edge(size_t index) noexcept;
   void splice(edge* a, edge* b) noexcept;
-  void connect(edge* a, edge* b) noexcept;
+  auto connection(edge* a, edge* b) noexcept;
   void remove(edge* e) noexcept;
   void swap(edge* e) noexcept;
-  // auto locate(x) noexcept;
+  auto right_of(const point& x, edge* e) noexcept;
+  auto left_of(const point& x, edge* e) noexcept;
+  auto locate(const point& x) noexcept;
+  void add(point* p) noexcept;
+  void set_super_triangle(point* a, point* b, point* c) noexcept;
 
   std::vector<quad_edge> edges;
 };
@@ -179,7 +183,7 @@ inline auto edge_algebra::traversor::operator*() noexcept {
   return origin(pointer);
 }
 
-auto edge_algebra::new_edge(size_t index) noexcept {
+inline auto edge_algebra::new_edge(size_t index) noexcept {
   auto& e = edges[index];
   e[0].next = &e[0];
   e[1].next = &e[3];
@@ -188,14 +192,14 @@ auto edge_algebra::new_edge(size_t index) noexcept {
   return &e[0];
 }
 
-auto edge_algebra::new_edge() noexcept {
+inline auto edge_algebra::new_edge() noexcept {
   // Assume there is no reallocation of the edges vector.
   const auto index = edges.size();
   edges.push_back({});
   return new_edge(index);
 }
 
-void edge_algebra::splice(edge* a, edge* b) noexcept {
+inline void edge_algebra::splice(edge* a, edge* b) noexcept {
   auto alpha = rotation(next(a));
   auto beta = rotation(next(b));
   auto t1 = next(b);
@@ -208,42 +212,102 @@ void edge_algebra::splice(edge* a, edge* b) noexcept {
   beta->next = t4;
 }
 
-void edge_algebra::connect(edge* a, edge* b) noexcept {
+inline auto edge_algebra::connection(edge* a, edge* b) noexcept {
   auto e = new_edge();
   origin(e) = destination(a);
   destination(e) = origin(b);
   splice(e, rotation(next(rotation(a, -1))));
   splice(symmetric(e), b);
+  return e;
 }
 
-void edge_algebra::remove(edge* e) noexcept {
+inline void edge_algebra::remove(edge* e) noexcept {
   splice(e, previous(e));
   splice(symmetric(e), previous(symmetric(e)));
 }
 
-void edge_algebra::swap(edge* e) noexcept {
+inline void edge_algebra::swap(edge* e) noexcept {
   auto a = previous(e);
   auto b = previous(symmetric(e));
   splice(e, a);
   splice(symmetric(e), b);
   splice(e, rotation(next(rotation(a, -1))));
-  splice(e, rotation(next(rotation(b, -1))));
+  splice(symmetric(e), rotation(next(rotation(b, -1))));
   origin(e) = destination(a);
   destination(e) = destination(b);
 }
 
-// auto edge_algebra::locate() noexcept {
-//   auto e = &edges[0][0];
-//   while (true) {
-//     if (right_of(x, e))
-//       e = symmetric(e);
-//     else if (!right_of(x, next(e)))
-//       e = next(e);
-//     else if (!right_of(x, next(e)))
-//       e = rotation(next(rotation(e, -1)), -1);
-//     else
-//       e;
-//   }
-// }
+inline auto edge_algebra::right_of(const point& x, edge* e) noexcept {
+  return counterclockwise(x, *static_cast<point*>(destination(e)),
+                          *static_cast<point*>(origin(e)));
+}
+
+inline auto edge_algebra::left_of(const point& x, edge* e) noexcept {
+  return counterclockwise(x, *static_cast<point*>(origin(e)),
+                          *static_cast<point*>(destination(e)));
+}
+
+inline auto edge_algebra::locate(const point& x) noexcept {
+  auto e = &edges[0][0];
+  while (true) {
+    if (right_of(x, e))
+      e = symmetric(e);
+    else if (!right_of(x, next(e)))
+      e = next(e);
+    else if (!right_of(x, rotation(next(rotation(e, -1)), -1)))
+      e = rotation(next(rotation(e, -1)), -1);
+    else
+      return e;
+  }
+}
+
+inline void edge_algebra::add(point* p) noexcept {
+  auto& x = *p;
+  auto e = locate(x);
+  auto base = new_edge();
+  origin(base) = origin(e);
+  destination(base) = p;
+  splice(base, e);
+
+  auto first = base;
+  do {
+    base = connection(e, symmetric(base));
+    e = previous(base);
+  } while (rotation(next(rotation(e, -1))) != first);
+
+  do {
+    auto t = previous(e);
+    if (right_of(*static_cast<point*>(destination(t)), e) &&
+        circumcircle_intersection(*static_cast<point*>(origin(e)),
+                                  *static_cast<point*>(destination(t)),
+                                  *static_cast<point*>(destination(e)), x)) {
+      swap(e);
+      e = previous(e);
+    } else if (next(e) == first)
+      return;
+    else
+      e = symmetric(next(next(e)));
+  } while (true);
+}
+
+inline void edge_algebra::set_super_triangle(point* a, point* b,
+                                             point* c) noexcept {
+  auto u = new_edge();
+  origin(u) = a;
+  destination(u) = b;
+
+  auto v = new_edge();
+  origin(v) = b;
+  destination(v) = c;
+
+  splice(symmetric(u), v);
+
+  auto t = new_edge();
+  origin(t) = c;
+  destination(t) = a;
+
+  splice(symmetric(v), t);
+  splice(symmetric(t), u);
+}
 
 }  // namespace lyrahgames::delaunay::guibas_stolfi
