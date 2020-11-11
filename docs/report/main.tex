@@ -127,7 +127,7 @@
   \section{Background}
     \subsection{Graph Theory}
     \subsection{Geometry}
-      \subsubsection{Circumcircles and Circumspheres}
+      \subsubsection{Circumcircle}
 
         \begin{align*}
           \norm{a - m} &= r \\
@@ -189,6 +189,124 @@
             \norm{\hat{c}}^2
           \end{pmatrix}
         \]
+
+        \[
+          \hat{m} =
+          \frac{1}{2 (u_x v_y - u_y v_x)}
+          \begin{pmatrix}
+            v_y (u_x^2 + u_y^2) - v_x (v_x^2 + v_y^2) \\
+            u_x (v_x^2 + v_y^2) - u_y (u_x^2 + u_y^2)
+          \end{pmatrix}
+        \]
+
+      \subsubsection{Circumsphere} % (fold)
+        \begin{align*}
+          \norm{a - m} &= r \\
+          \norm{b - m} &= r \\
+          \norm{c - m} &= r \\
+          \norm{d - m} &= r
+        \end{align*}
+
+        \begin{align*}
+          \norm{a - m}^2 &= r^2 \\
+          \norm{b - m}^2 &= r^2 \\
+          \norm{c - m}^2 &= r^2 \\
+          \norm{d - m}^2 &= r^2
+        \end{align*}
+
+        \begin{align*}
+          \norm{\hat{m}}^2 &= r^2 \\
+          \norm{\hat{b} - \hat{m}} &= r^2 \\
+          \norm{\hat{c} - \hat{m}} &= r^2 \\
+          \norm{\hat{d} - \hat{m}} &= r^2
+        \end{align*}
+
+        \begin{align*}
+          \norm{\hat{b}}^2 + \norm{\hat{m}}^2 - 2 \scalarproduct{\hat{b}}{\hat{m}} &= r^2 \\
+          \norm{\hat{c}}^2 + \norm{\hat{m}}^2 - 2 \scalarproduct{\hat{c}}{\hat{m}} &= r^2 \\
+          \norm{\hat{d}}^2 + \norm{\hat{m}}^2 - 2 \scalarproduct{\hat{c}}{\hat{m}} &= r^2
+        \end{align*}
+
+        \begin{align*}
+          \norm{\hat{b}}^2 - 2 \scalarproduct{\hat{b}}{\hat{m}} &= 0 \\
+          \norm{\hat{c}}^2 - 2 \scalarproduct{\hat{c}}{\hat{m}} &= 0 \\
+          \norm{\hat{d}}^2 - 2 \scalarproduct{\hat{c}}{\hat{m}} &= 0
+        \end{align*}
+
+        \begin{align*}
+          \norm{\hat{b}}^2 - 2 \scalarproduct{\hat{b}}{\hat{m}} &= 0 \\
+          \norm{\hat{c}}^2 - 2 \scalarproduct{\hat{c}}{\hat{m}} &= 0 \\
+          \norm{\hat{d}}^2 - 2 \scalarproduct{\hat{d}}{\hat{m}} &= 0
+        \end{align*}
+
+        \begin{align*}
+          \scalarproduct{\hat{b}}{\hat{m}} &= \frac{1}{2}\norm{\hat{b}}^2 \\
+          \scalarproduct{\hat{c}}{\hat{m}} &= \frac{1}{2}\norm{\hat{c}}^2 \\
+          \scalarproduct{\hat{d}}{\hat{m}} &= \frac{1}{2}\norm{\hat{d}}^2
+        \end{align*}
+
+        \[
+          \begin{pmatrix}
+            \hat{b} & \hat{c} & \hat{d}
+          \end{pmatrix}
+          ^\mathrm{T}
+          \hat{m}
+          = \frac{1}{2}
+          \begin{pmatrix}
+            \norm{\hat{b}}^2 \\
+            \norm{\hat{c}}^2 \\
+            \norm{\hat{d}}^2
+          \end{pmatrix}
+        \]
+
+        \[
+          \hat{m} =
+          \frac{1}{2\det\begin{pmatrix}\hat{b} & \hat{c} & \hat{d}\end{pmatrix}}
+          \mathrm{adj} \begin{pmatrix}\hat{b} & \hat{c} & \hat{d}\end{pmatrix}^\mathrm{T}
+          \begin{pmatrix}
+            \norm{\hat{b}}^2 \\
+            \norm{\hat{c}}^2 \\
+            \norm{\hat{d}}^2
+          \end{pmatrix}
+        \]
+
+      \subsubsection{Circumscribed $n$-Sphere}
+        \[
+          \norm{x_0 - m} = r
+        \]
+        \[
+          \norm{x_i - m} = r
+        \]
+        \[
+          \norm{x_i - m}^2 = r^2
+        \]
+        \[
+          \norm{\hat{x}_i - \hat{m}}^2 = r^2
+        \]
+        \[
+          \norm{\hat{x}_i}^2 + \norm{\hat{m}}^2 - 2 \scalarproduct{\hat{x}_i}{\hat{m}} = r^2
+        \]
+        \[
+          \norm{\hat{x}_i}^2 - 2 \scalarproduct{\hat{x}_i}{\hat{m}} = 0
+        \]
+        \[
+          \scalarproduct{\hat{x}_i}{\hat{m}} = \frac{1}{2}\norm{\hat{x}_i}^2
+        \]
+        \[
+          \begin{pmatrix}
+            \hat{x}_1 & \ldots & \hat{x}_n
+          \end{pmatrix}
+          ^\mathrm{T}
+          \hat{m}
+          = \frac{1}{2}
+          \begin{pmatrix}
+            \norm{\hat{x}_1}^2 \\
+            \vdots \\
+            \norm{\hat{x}_n}^2
+          \end{pmatrix}
+        \]
+        Here, we should not try to build the adjoint.
+        For higher dimensions, it is much more efficient to use a simple matrix solver, like $LU$ decomposition or Cholesky.
 
     \subsection{Delaunay Triangulation and Tessellation}
       Triangulation, Tessellation, Simplicialization, Subdivision, Mesh Generation
