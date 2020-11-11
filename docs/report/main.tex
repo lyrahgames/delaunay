@@ -95,6 +95,11 @@
   % pdfcreator={pdflatex, or other tool}
 }
 
+\newcommand{\naturalnumbers}{\mathds{N}}
+\newcommand{\realnumbers}{\mathds{R}}
+\newcommand{\norm}[1]{\left\| #1 \right\|}
+\newcommand{\scalarproduct}[2]{\left\langle #1 \middle| #2 \right\rangle}
+
 \begin{document}
   \maketitle
   \thispagestyle{empty}
@@ -123,6 +128,68 @@
     \subsection{Graph Theory}
     \subsection{Geometry}
       \subsubsection{Circumcircles and Circumspheres}
+
+        \begin{align*}
+          \norm{a - m} &= r \\
+          \norm{b - m} &= r \\
+          \norm{c - m} &= r
+        \end{align*}
+
+        \begin{align*}
+          \norm{a - m}^2 &= r^2 \\
+          \norm{b - m}^2 &= r^2 \\
+          \norm{c - m}^2 &= r^2
+        \end{align*}
+
+        \begin{align*}
+          \norm{\hat{m}}^2 &= r^2 \\
+          \norm{\hat{b} - \hat{m}} &= r^2 \\
+          \norm{\hat{c} - \hat{m}} &= r^2
+        \end{align*}
+
+        \begin{align*}
+          \norm{\hat{b}}^2 + \norm{\hat{m}}^2 - 2 \scalarproduct{\hat{b}}{\hat{m}} &= r^2 \\
+          \norm{\hat{c}}^2 + \norm{\hat{m}}^2 - 2 \scalarproduct{\hat{c}}{\hat{m}} &= r^2
+        \end{align*}
+
+        \begin{align*}
+          \norm{\hat{b}}^2 - 2 \scalarproduct{\hat{b}}{\hat{m}} &= 0 \\
+          \norm{\hat{c}}^2 - 2 \scalarproduct{\hat{c}}{\hat{m}} &= 0
+        \end{align*}
+
+        \begin{align*}
+          \norm{\hat{b}}^2 - 2 \scalarproduct{\hat{b}}{\hat{m}} &= 0 \\
+          \norm{\hat{c}}^2 - 2 \scalarproduct{\hat{c}}{\hat{m}} &= 0
+        \end{align*}
+
+        \begin{align*}
+          \scalarproduct{\hat{b}}{\hat{m}} &= \frac{1}{2}\norm{\hat{b}}^2 \\
+          \scalarproduct{\hat{c}}{\hat{m}} &= \frac{1}{2}\norm{\hat{c}}^2
+        \end{align*}
+
+        \[
+          \begin{pmatrix}
+            \hat{b} & \hat{c}
+          \end{pmatrix}
+          ^\mathrm{T}
+          \hat{m}
+          = \frac{1}{2}
+          \begin{pmatrix}
+            \norm{\hat{b}}^2 \\
+            \norm{\hat{c}}^2
+          \end{pmatrix}
+        \]
+
+        \[
+          \hat{m} =
+          \frac{1}{2\det\begin{pmatrix}\hat{b} & \hat{c}\end{pmatrix}}
+          \mathrm{adj} \begin{pmatrix}\hat{b} & \hat{c}\end{pmatrix}^\mathrm{T}
+          \begin{pmatrix}
+            \norm{\hat{b}}^2 \\
+            \norm{\hat{c}}^2
+          \end{pmatrix}
+        \]
+
     \subsection{Delaunay Triangulation and Tessellation}
       Triangulation, Tessellation, Simplicialization, Subdivision, Mesh Generation
       Two and Three Dimensions
