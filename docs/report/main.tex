@@ -314,11 +314,15 @@
   \section{Algorithms and Data Structures}
     \subsection{Hash Map}
     \subsection{Triangle Mesh}
+      There are different schemes for storing a triangle.
+      Information about neighbors seem to be important to improve efficiency but not necessary some algorithms.
     \subsection{Quad-Edge Data Structure}
     \subsection{Radix Sort}
     \subsection{Linear Morton Sort}
     \subsection{Linear Floating-Point Quad-Tree}
     \subsection{Bowyer-Watson Algorithm}
+      Advantages: Easy structures. Low memory consumption. Possible in every dimension. Incremental construction at arbitrary point in domain.
+      Disadvantages: Complexity is $\Theta\left( n^2 \right)$. Algorithm needs bounding super triangle. Bad parallelization.
     \subsection{Guibas-Stolfi Incremental Algorithm}
     \subsection{Guibas-Stolfi Divide-and-Conquer Algorithm}
     \subsection{Dwyer Algorithm}
@@ -335,6 +339,11 @@
   \section{Benchmarks}
   \section{Examples}
     \subsection{Image Mosaic and Tessellation}
+      SVG output is generated.
+      We need the image as PNG or JPG.
+      A seed will be generated automatically or given on command line.
+      Hence, it should be returned as well.
+      Also the triangle count can be defined.
     \subsection{Fluids for Ray Tracing}
     \subsection{Finite Element Method}
     \subsection{Pareto Frontiers}
