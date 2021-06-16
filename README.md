@@ -1,18 +1,33 @@
-# Delaunay Triangulation
+<h1 align="center">
+    Lyrahgames' Delaunay Tessellation Package
+</h1>
 
-A simple implementation of the Bowyer-Watson algorithm to construct the Delaunay triangulation of a given set of points.
-It was put into an easy-to-use C++ header-only library currently based on the [build2](https://build2.org/) build system.
+<p align="center">
+    Header-Only C++ Library for Generating the N-dimensional Delaunay Triangulation/Tessellation of a Set of Given Points
+</p>
+
+<table align="center">
+    <tr>
+        <td><img src="docs/images/random_points_3d.png" width="300"/></td>
+        <td><img src="docs/images/random_points_3d_surface.png" width="300"/></td>
+    </tr>
+</table>
 
 [Read the report.](docs/report/main.pdf)
 
-![](https://img.shields.io/github/languages/top/lyrahgames/delaunay.svg?style=for-the-badge)
-![](https://img.shields.io/github/languages/code-size/lyrahgames/delaunay.svg?style=for-the-badge)
-![](https://img.shields.io/github/repo-size/lyrahgames/delaunay.svg?style=for-the-badge)
-![](https://img.shields.io/github/license/lyrahgames/delaunay.svg?style=for-the-badge&color=blue)
-<!-- [![Website lyrahgames.github.io/pxart](https://img.shields.io/website/https/lyrahgames.github.io/pxart.svg?down_message=offline&label=Documentation&style=for-the-badge&up_color=blue&up_message=online)](https://lyrahgames.github.io/pxart) -->
+## Development Status
+
+<p align="center">
+    <img src="https://img.shields.io/github/languages/top/lyrahgames/delaunay.svg?style=for-the-badge">
+    <img src="https://img.shields.io/github/languages/code-size/lyrahgames/delaunay.svg?style=for-the-badge">
+    <img src="https://img.shields.io/github/repo-size/lyrahgames/delaunay.svg?style=for-the-badge">
+    <a href="COPYING.md">
+        <img src="https://img.shields.io/github/license/lyrahgames/delaunay.svg?style=for-the-badge&color=blue">
+    </a>
+</p>
 
 <b>
-<table>
+<table align="center">
     <tr>
         <td>
             master
@@ -22,15 +37,38 @@ It was put into an easy-to-use C++ header-only library currently based on the [b
                 <img src="https://img.shields.io/github/last-commit/lyrahgames/delaunay/master.svg?logo=github&logoColor=white">
             </a>
         </td>    
-        <td>
-            <!-- <a href="https://circleci.com/gh/lyrahgames/delaunay/tree/master"><img src="https://circleci.com/gh/lyrahgames/delaunay/tree/master.svg?style=svg"></a> -->
-        </td>
-        <td>
-            <!-- <a href="https://codecov.io/gh/lyrahgames/delaunay">
+        <!-- <td>
+            <a href="https://circleci.com/gh/lyrahgames/delaunay/tree/master"><img src="https://circleci.com/gh/lyrahgames/delaunay/tree/master.svg?style=svg"></a>
+        </td> -->
+        <!-- <td>
+            <a href="https://codecov.io/gh/lyrahgames/delaunay">
               <img src="https://codecov.io/gh/lyrahgames/delaunay/branch/master/graph/badge.svg" />
-            </a> -->
+            </a>
+        </td> -->
+        <td>
+            <a href="https://ci.cppget.org/?builds=lyrahgames-robin-hood&pv=&tc=*&cf=&mn=&tg=&rs=*">
+                <img src="https://img.shields.io/badge/b|2 ci.cppget.org-Click here!-blue">
+            </a>
         </td>
     </tr>
+    <!-- <tr>
+        <td>
+            develop
+        </td>
+        <td>
+            <a href="https://github.com/lyrahgames/delaunay/tree/develop">
+                <img src="https://img.shields.io/github/last-commit/lyrahgames/delaunay/develop.svg?logo=github&logoColor=white">
+            </a>
+        </td>    
+        <td>
+            <a href="https://circleci.com/gh/lyrahgames/delaunay/tree/develop"><img src="https://circleci.com/gh/lyrahgames/delaunay/tree/develop.svg?style=svg"></a>
+        </td>
+        <td>
+            <a href="https://codecov.io/gh/lyrahgames/delaunay">
+              <img src="https://codecov.io/gh/lyrahgames/delaunay/branch/develop/graph/badge.svg" />
+            </a>
+        </td>
+    </tr> -->
     <tr>
         <td>
         </td>
@@ -56,21 +94,54 @@ It was put into an easy-to-use C++ header-only library currently based on the [b
         <td>
             <img src="https://img.shields.io/github/tag-date/lyrahgames/delaunay.svg?label=latest%20tag&logo=github&logoColor=white">
         </td>
+        <!-- <td>
+            <a href="https://queue.cppget.org/robin-hood">
+                <img src="https://img.shields.io/website/https/queue.cppget.org/robin-hood.svg?down_message=empty&down_color=blue&label=b|2%20queue.cppget.org&up_color=orange&up_message=running">
+            </a>
+        </td> -->
     </tr>
 </table>
 </b>
 
-## Author
-- Markus Pawellek (lyrahgames@mailbox.org)
-
 ## Requirements
-- C++17
-- [build2](https://build2.org/)
-
-## Supported Platforms
-- Operating System: Linux | Windows | MacOS
-- Compiler: GCC | Clang | MSVC | MinGW
-- Build System: [build2](https://build2.org/)
+<b>
+<table>
+    <tr>
+        <td>Language Standard:</td>
+        <td>C++20</td>
+    </tr>
+    <tr>
+        <td>Compiler:</td>
+        <td>
+            GCC | Clang | MinGW
+        </td>
+    </tr>
+    <tr>
+        <td>Build System:</td>
+        <td>
+            <a href="https://build2.org/">build2</a>
+        </td>
+    </tr>
+    <tr>
+        <td>Operating System:</td>
+        <td>
+            Linux | Windows | MacOS
+        </td>
+    </tr>
+    <tr>
+        <td>Dependencies:</td>
+        <td>
+            <a href="https://github.com/lyrahgames/xstd">
+                lyrahgames-xstd
+            </a>
+            <br>
+            <a href="https://cppget.org/doctest">
+                doctest
+            </a>
+        </td>
+    </tr>
+</table>
+</b>
 
 ## Installation
 The standard installation process will only install the header-only library.
