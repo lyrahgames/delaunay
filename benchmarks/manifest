@@ -15,6 +15,6 @@ build-error-email: lyrahgames@mailbox.org
 depends: * build2 >= 0.13.0
 depends: * bpkg >= 0.13.0
 
-depends: lyrahgames-delaunay == $
+# depends: lyrahgames-delaunay == $
 
 depends: perfevent ^0.2.0

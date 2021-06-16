@@ -5,5 +5,3 @@ hxx{*}: extension = hpp
 cxx{*}: extension = cpp
 
 test.target = $cxx.target
-
-cxx.poptions =+ "-I$out_root" "-I$src_root"

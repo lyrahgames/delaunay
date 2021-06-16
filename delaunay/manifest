@@ -18,7 +18,9 @@ build-error-email: lyrahgames@mailbox.org
 depends: * build2 >= 0.13.0
 depends: * bpkg >= 0.13.0
 
-requires: c++17
+depends: lyrahgames-xstd >= 0.1.2
 
-tests: lyrahgames-delaunay-tests
-benchmarks: lyrahgames-delaunay-benchmarks
+requires: c++20
+
+# tests: lyrahgames-delaunay-tests
+# benchmarks: lyrahgames-delaunay-benchmarks
