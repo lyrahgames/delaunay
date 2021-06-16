@@ -1,4 +1,4 @@
-./: tests/ manifest doc{*.md} legal{COPYING}
+./: tests/ manifest doc{README.md AUTHORS.md} legal{COPYING.md}
 
 ./: lib{lyrahgames-delaunay}: lyrahgames/delaunay/hxx{**}
 {

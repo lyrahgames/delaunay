@@ -1,4 +1,4 @@
-./: manifest doc{*.md} legal{COPYING}
+./: manifest doc{README.md AUTHORS.md} legal{COPYING.md}
 
 import libs = lyrahgames-delaunay%lib{lyrahgames-delaunay}
 import libs += doctest%lib{doctest}

@@ -2,7 +2,10 @@
 !*/
 
 !*.hpp
+!*.ipp
+!*.tpp
 !*.cpp
+!*.in
 
 !buildfile
 !bootstrap.build
@@ -10,9 +13,13 @@
 !export.build
 !*manifest
 
-!COPYING
 !*.md
 
 !docs/images/*.png
 
+!.clang-format
+
+!.githooks/**
+!.gitmodules
+!.gitattributes
 !.gitignore
