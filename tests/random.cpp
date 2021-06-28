@@ -306,13 +306,15 @@ void init_vertex_data() {
   for (auto& p : points)
     p = {random(), random()};
 
-  lyrahgames::delaunay::guibas_stolfi::edge_algebra triangulation(points);
+  using namespace lyrahgames;
+  delaunay::triangulator triangulator(points);
+  // cout << triangulator << endl;
 
-  const auto& vertices = triangulation.points;
+  const auto& vertices = triangulator.vertices;
   vertex_count = vertices.size();
 
-  // vector<uint32_t> elements(2 * triangulation.quad_edges.size());
-  // for (size_t i = 0; auto& e : triangulation.quad_edges) {
+  // vector<uint32_t> elements(2 * triangulator.quad_edges.size());
+  // for (size_t i = 0; auto& e : triangulator.quad_edges) {
   //   elements[i + 0] = e[0].data;
   //   elements[i + 1] = e[2].data;
   //   i += 2;
@@ -321,23 +323,23 @@ void init_vertex_data() {
 
   // Convex Hull
   // vector<uint32_t> elements{};
-  // auto eid = triangulation.faces[0];
+  // auto eid = triangulator.faces[0];
   // auto e = eid;
   // do {
-  //   elements.push_back(triangulation.onode(e));
-  //   elements.push_back(triangulation.dnode(e));
-  //   e = triangulation.lnext(e);
+  //   elements.push_back(triangulator.onode(e));
+  //   elements.push_back(triangulator.dnode(e));
+  //   e = triangulator.lnext(e);
   // } while (e != eid);
   // element_count = elements.size();
 
-  // Triangulation
-  vector<uint32_t> elements(3 * triangulation.faces.size());
-  for (size_t fid = 1; fid < triangulation.faces.size(); ++fid) {
-    auto eid = triangulation.faces[fid];
-    elements[3 * fid + 0] = triangulation.onode(eid);
-    eid = triangulation.lnext(eid);
-    elements[3 * fid + 1] = triangulation.onode(eid);
-    elements[3 * fid + 2] = triangulation.dnode(eid);
+  // triangulator
+  vector<uint32_t> elements(3 * triangulator.faces.size());
+  for (size_t fid = 1; fid < triangulator.faces.size(); ++fid) {
+    auto eid = triangulator.faces[fid];
+    elements[3 * fid + 0] = triangulator.onode(eid);
+    eid = triangulator.lnext(eid);
+    elements[3 * fid + 1] = triangulator.onode(eid);
+    elements[3 * fid + 2] = triangulator.dnode(eid);
   }
   element_count = elements.size();
 
