@@ -1,0 +1,7 @@
+project = lyrahgames-delaunay
+
+using version
+using config
+using test
+using install
+using dist

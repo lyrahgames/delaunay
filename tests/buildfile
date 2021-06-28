@@ -1,0 +1,8 @@
+import libs = lyrahgames-delaunay%lib{lyrahgames-delaunay}
+./: exe{version}: cxx{version} $libs
+
+
+import libs += glm%lib{glm}
+import libs += glbinding%lib{glbinding}
+import libs += glfw3%lib{glfw3}
+./: exe{random}: cxx{random} $libs

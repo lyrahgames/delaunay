@@ -1,0 +1,27 @@
+: 1
+name: lyrahgames-delaunay
+version: 0.1.0-a.0.z
+project: lyrahgames
+summary: Header-Only Library for N-Dimensional Delaunay Triangulation
+license: GPL-3.0-or-later ; GNU General Public License v3.0 or later
+
+topics: delaunay triangulation, bowyer-watson algorithm
+keywords: circumcircle triangle simplex facet circumsphere
+
+description-file: README.md
+
+url: https://github.com/lyrahgames/delaunay
+
+email: lyrahgames@mailbox.org
+build-error-email: lyrahgames@mailbox.org
+
+depends: * build2 >= 0.13.0
+depends: * bpkg >= 0.13.0
+
+depends: lyrahgames-xstd >= 0.1.2
+
+requires: glm
+requires: glbinding
+requires: glfw3
+
+requires: c++20
