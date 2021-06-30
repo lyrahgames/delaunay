@@ -14,10 +14,19 @@ namespace lyrahgames::delaunay::guibas_stolfi {
 
 class triangulator : public edge_algebra {
  public:
-  triangulator(const std::vector<point>& data) : vertices(data) {
-    std::ranges::sort(vertices, [](const auto& x, const auto& y) {
-      return (x[0] < y[0]) || ((x[0] == y[0]) && (x[1] <= y[1]));
+  triangulator(const std::vector<point>& data)
+      : vertices(data), permutation(data.size()) {
+    std::iota(permutation.begin(), permutation.end(), 0);
+    std::ranges::sort(permutation, [&data](auto x, auto y) {
+      return (data[x][0] < data[y][0]) ||
+             ((data[x][0] == data[y][0]) && (data[x][1] <= data[y][1]));
     });
+    for (size_t i = 0; i < data.size(); ++i) {
+      vertices[i] = data[permutation[i]];
+    }
+    // std::ranges::sort(vertices, [](const auto& x, const auto& y) {
+    //   return (x[0] < y[0]) || ((x[0] == y[0]) && (x[1] <= y[1]));
+    // });
 
     auto [l, r] = triangulate(0, vertices.size());
     generate_faces(r);
@@ -182,6 +191,7 @@ class triangulator : public edge_algebra {
 
  public:
   std::vector<point> vertices{};
+  std::vector<data_id_t> permutation{};
   std::vector<edge_id_t> faces{};
 };
 
